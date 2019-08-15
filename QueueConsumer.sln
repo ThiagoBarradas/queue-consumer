@@ -3,9 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.757
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueueConsumer", "QueueConsumer\QueueConsumer.csproj", "{4BA75F19-5B9E-4424-96F6-BECEDA8B161D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QueueConsumer", "QueueConsumer\QueueConsumer.csproj", "{4BA75F19-5B9E-4424-96F6-BECEDA8B161D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F60FD86B-D3B4-4079-904D-27B2B2F968DA}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		azure-pipelines.yml = azure-pipelines.yml
+		.github\CONTRIBUTING.md = .github\CONTRIBUTING.md
+		demo\docker-compose.yml = demo\docker-compose.yml
+		Dockerfile = Dockerfile
+		.github\ISSUE_TEMPLATE.md = .github\ISSUE_TEMPLATE.md
+		LICENSE = LICENSE
+		.github\PULL_REQUEST_TEMPLATE.md = .github\PULL_REQUEST_TEMPLATE.md
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
