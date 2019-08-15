@@ -20,7 +20,7 @@ jobs:
       path: $(System.DefaultWorkingDirectory)/artifact
       artifact: $(project_name)
 
-- job: Build
+- job: BuildAndPublishDocker
   dependsOn: QualityAnalysis
   condition:  and(succeeded(), variables['Build.SourceBranch'], 'refs/heads/master')
   variables:
