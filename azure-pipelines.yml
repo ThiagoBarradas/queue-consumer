@@ -1,7 +1,7 @@
 variables:
   project_name: 'QueueConsumer'
   netcore_version: '2.2'
-  docker_image_name: 'thiagobarradas/environment-api'
+  docker_image_name: 'thiagobarradas/queue-consumer'
   docker_registry_account: 'DockerRegistryBarradas'
 
 jobs:
@@ -20,8 +20,8 @@ jobs:
       path: $(System.DefaultWorkingDirectory)/artifact
       artifact: $(project_name)
 
-- job: Build
-  dependsOn: QualityAnalysis
+- job: BuildAndPublishDocker
+  dependsOn: Build
   condition:  and(succeeded(), variables['Build.SourceBranch'], 'refs/heads/master')
   variables:
     Version: '$(Build.BuildNumber)'
