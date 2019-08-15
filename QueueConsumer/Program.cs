@@ -1,10 +1,6 @@
-﻿using Proto;
-using QueueConsumer.Models;
-using QueueConsumer.Notification;
-using QueueConsumer.Queue;
+﻿using QueueConsumer.Models;
 using System;
 using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace QueueConsumer
 {
@@ -13,50 +9,63 @@ namespace QueueConsumer
         public static void Main(string[] args = null)
         {
             var config = QueueConsumerConfiguration.Create();
-            Display(config);
+            DisplayHeader(config);
 
-            var queueManager = new QueueManager(config);
-            var actor = new SendNotificationActor(config, queueManager);
-            var props = Actor.FromProducer(() => actor);
+            var processor = new QueueMessageProcessor(config);
 
             while (true)
             {
-                try
-                {
-                    queueManager.ReceiveMessage += (message, deliveryTag) =>
-                    {
-                        var queueMessage = new QueueMessage(message, deliveryTag);
-                        Actor.Spawn(props).Tell(queueMessage);
-                    };
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("EXCEPTION: {0}", e.Message);
-                    Console.WriteLine("Try reconnecting in 3 seconds...", e.Message);
-                    Thread.Sleep(3000);
-                    queueManager.TryReconnect();
-                }
+                processor.Execute();
             }
         }
 
-        private static void Display(QueueConsumerConfiguration config)
+        private static void DisplayHeader(QueueConsumerConfiguration config)
         {
-            Console.WriteLine("Queue Consumer Application Started - {0}", DateTime.UtcNow);
-            Console.WriteLine("Configuration:");
-            Console.WriteLine("- QueueConnectionString: {0}", Regex.Replace(config.QueueConnectionString, "(\\:\\/\\/).*(\\@)", "://*****@"));
-            Console.WriteLine("- QueueName: {0}", config.QueueName);
-            Console.WriteLine("- QueueNameForFailed: {0}", config.QueueNameForFailed);
-            Console.WriteLine("- Url: {0}", config.Url);
-            Console.WriteLine("- User: {0}", config.User);
-            Console.WriteLine("- Pass: {0}", string.IsNullOrWhiteSpace(config.Pass) ? "null" : "******");
-            Console.WriteLine("- TimeoutInSeconds: {0}", config.TimeoutInSeconds);
+            Logger.LogLineWithLevel("INFO", "Queue Consumer Application Started");
+            Logger.LogLine("");
+            Logger.LogLine("Configuration:");
+            Logger.LogLine("- QueueConnectionString: {0}", Regex.Replace(config.QueueConnectionString, "(\\:\\/\\/).*(\\@)", "://*****@"));
+            Logger.LogLine("- QueueName: {0}", config.QueueName);
+            Logger.LogLine("- Url: {0}", config.Url);
+            Logger.LogLine("- User: {0}", config.User);
+            Logger.LogLine("- Pass: {0}", string.IsNullOrWhiteSpace(config.Pass) ? "null" : "******");
+            Logger.LogLine("- TimeoutInSeconds: {0}", config.TimeoutInSeconds);
+            Logger.LogLine("- MaxThreads: {0}", config.MaxThreads);
+            Logger.LogLine("- PopulateQueueQuantity: {0}", config.PopulateQueueQuantity);
+            Logger.LogLine("- CreateQueue: {0}", config.CreateQueue);
+            Logger.LogLine("- RetryCount: {0}", config.RetryCount);
+            Logger.LogLine("- RetryTTL: {0}", config.RetryTTL);
+            Logger.LogLine("");
+        }
+    }
+
+    public static class Logger
+    {
+        public static void LogLineWithLevel(string logLevel, string message, params object[] args)
+        {
+            var finalMessage = $"[{GetCurrentDate()}][{logLevel}] {message ?? ""}";
+            Console.WriteLine(finalMessage, args);
         }
 
-        //private static void Init()
-        //{
-        //    SetConfig();
-        //    ExceptionLogger = new ExceptionLogger();
-        //    ExceptionLogger.LogAndPrintInfo("Hubot Hal9000 Application Started - {0}", DateTime.UtcNow);
-        //}
+        public static void LogWithLevel(string logLevel, string message, params object[] args)
+        {
+            var finalMessage = $"[{GetCurrentDate()}][{logLevel}] {message ?? ""}";
+            Console.Write(finalMessage, args);
+        }
+
+        public static void LogLine(string message, params object[] args)
+        {
+            Console.WriteLine(message, args);
+        }
+
+        public static void Log(string message, params object[] args)
+        {
+            Console.Write(message, args);
+        }
+
+        private static string GetCurrentDate()
+        {
+            return DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
+        }
     }
 }

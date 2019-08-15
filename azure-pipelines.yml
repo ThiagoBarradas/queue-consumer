@@ -1,0 +1,58 @@
+variables:
+  project_name: 'QueueConsumer'
+  netcore_version: '2.2'
+  docker_image_name: 'thiagobarradas/environment-api'
+  docker_registry_account: 'DockerRegistryBarradas'
+
+jobs:
+- job: Build
+  steps:
+  - script: |
+      pwd && ls -la
+      dotnet restore 
+      dotnet publish -c Release -o bin/Release/netcoreapp$(netcore_version)
+      mkdir artifact
+      cp -r $(project_name)/bin/Release/netcoreapp$(netcore_version) artifact/$(Build.SourceBranchName)
+    displayName: Build Application
+  - task: PublishPipelineArtifact@1
+    displayName: Store Application Artifact
+    inputs:
+      path: $(System.DefaultWorkingDirectory)/artifact
+      artifact: $(project_name)
+
+- job: Build
+  dependsOn: QualityAnalysis
+  condition:  and(succeeded(), variables['Build.SourceBranch'], 'refs/heads/master')
+  variables:
+    Version: '$(Build.BuildNumber)'
+  steps:
+  - task: DownloadPipelineArtifact@2
+    displayName: Get Application Artifact
+    inputs:
+      artifact: $(project_name)
+  - script: |
+      mkdir -p $(project_name)/bin/Release
+      cp -r $(Pipeline.Workspace)/$(Build.SourceBranchName) $(project_name)/bin/Release/netcoreapp$(netcore_version)
+    displayName: Prepare Files
+  - task: replacetokens@3
+    inputs:
+      targetFiles: 'Dockerfile'
+      encoding: 'auto'
+      writeBOM: true
+      verbosity: 'detailed'
+      actionOnMissing: 'warn'
+      keepToken: true
+      tokenPrefix: '__['
+      tokenSuffix: ']__'
+    displayName: Add Version as Env Var
+  - task: Docker@2
+    displayName: 'Build and Publish Docker Image'
+    inputs:
+      containerRegistry: '$(docker_registry_account)'
+      repository: '$(docker_image_name)'
+      command: 'buildAndPush'
+      Dockerfile: '$(System.DefaultWorkingDirectory)/Dockerfile'
+      buildContext: '$(System.DefaultWorkingDirectory)'
+      tags: |
+        $(Version)
+        latest

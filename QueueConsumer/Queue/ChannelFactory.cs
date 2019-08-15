@@ -26,9 +26,18 @@ namespace QueueConsumer.Queue
 
         public static void CloseConnection()
         {
-            Connection.Close();
-            Connection.Dispose();
-            Connection = null;
+            if (Connection != null)
+            {
+                lock (Lock)
+                {
+                    if (Connection != null)
+                    {
+                        Connection.Close();
+                        Connection.Dispose();
+                        Connection = null;
+                    }
+                }
+            }
         }
     }
 }
