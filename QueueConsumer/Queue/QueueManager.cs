@@ -129,7 +129,7 @@ namespace QueueConsumer.Queue
 
             if (this.Configuration.PopulateQueueQuantity > 0)
             {
-                Logger.LogWithLevel("OK", "PopulateQueueQuantity: {0} ", this.Configuration.PopulateQueueQuantity);
+                Logger.LogLineWithLevel("OK", "PopulateQueueQuantity: {0} ", this.Configuration.PopulateQueueQuantity);
                 Console.CursorVisible = false;
                 for (int i = 0; i < this.Configuration.PopulateQueueQuantity; i++)
                 {
