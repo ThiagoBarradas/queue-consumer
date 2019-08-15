@@ -1,30 +1,5 @@
 version: '2'
 services:
-  queue-consumer:
-    image: thiagobarradas/queue-consumer:latest
-    container_name: queue-consumer
-    hostname: queue-consumer
-    labels:
-      NAME: "queue-consumer"
-    ports: 
-      - "15672:15672"
-      - "5672:5672"
-    environment:
-      - QueueConnectionString="amqp://user:pass@rabbitmq-server:5672/consumer-vh"
-      - QueueName=my-demo-queue
-      - Url=http://pruu.herokuapp.com/dump/queue-consumer
-      - User=user
-      - Pass=password
-      - TimeoutInSeconds=30
-      - MaxThreads=100
-      - PopulateQueueQuantity=10000
-      - RetryCount=5       
-      - RetryTTL=300000 
-     links:
-      - rabbitmq-server
-     depends_on:
-      - rabbitmq-server
-
   rabbitmq-server:
     image: rabbitmq:3-management
     container_name: rabbitmq-server
@@ -34,9 +9,30 @@ services:
     ports: 
       - "15672:15672"
       - "5672:5672"
-    volumes:
-      - ./wait-for-rabbit.sh:/wait-for-rabbit.sh
     environment:
       - RABBITMQ_DEFAULT_USER=user
       - RABBITMQ_DEFAULT_PASS=password
-      - RABBITMQ_DEFAULT_VHOST=/consumer-vh
+      - RABBITMQ_DEFAULT_VHOST=/consumervh
+    
+  queue-consumer:
+    image: thiagobarradas/queue-consumer:latest
+    container_name: queue-consumer
+    hostname: queue-consumer
+    labels:
+      NAME: "queue-consumer"
+    environment:
+      - QueueConnectionString=amqp://user:password@rabbitmq-server:5672/consumervh
+      - QueueName=my-demo-queue
+      - Url=http://pruu.herokuapp.com/dump/queue-consumer
+      - User=user
+      - Pass=password
+      - TimeoutInSeconds=30
+      - MaxThreads=100
+      - PopulateQueueQuantity=10000
+      - RetryCount=5       
+      - RetryTTL=300000 
+      - CreateQueue=true
+    links:
+      - rabbitmq-server:rabbitmq-server
+    depends_on:
+      - rabbitmq-server

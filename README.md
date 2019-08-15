@@ -6,7 +6,7 @@ A simple consumer for Rabbit MQ sending a post with basic auth and all structure
 
 ```
 docker run --name queue-consumer -d \
-    -e QueueConnectionString="amqp://user:pass@localhost:5672/current-vh" \
+    -e QueueConnectionString="amqp://user:password@localhost:5672/current-vh" \
     -e QueueName=my-demo-queue \
     -e Url=http://pruu.herokuapp.com/dump/queue-consumer \
     -e User=user \
@@ -16,6 +16,7 @@ docker run --name queue-consumer -d \
     -e PopulateQueueQuantity=10000 \
     -e RetryCount=5 \        
     -e RetryTTL=300000 \
+	-e CreateQueue=true \
     thiagobarradas/queue-consumer:latest
 ```
 

@@ -133,9 +133,6 @@ namespace QueueConsumer.Queue
                 Console.CursorVisible = false;
                 for (int i = 0; i < this.Configuration.PopulateQueueQuantity; i++)
                 {
-                    var processed = string.Format("[{0}]", i+1);
-                    Console.Write(processed);
-                    Console.SetCursorPosition(Console.CursorLeft - processed.Length, Console.CursorTop);
                     this.AddMessage(JsonConvert.SerializeObject(new { message = i }));
                 }
                 Console.CursorVisible = true;
