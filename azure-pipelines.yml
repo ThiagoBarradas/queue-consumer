@@ -21,7 +21,7 @@ jobs:
       artifact: $(project_name)
 
 - job: BuildAndPublishDocker
-  dependsOn: QualityAnalysis
+  dependsOn: Build
   condition:  and(succeeded(), variables['Build.SourceBranch'], 'refs/heads/master')
   variables:
     Version: '$(Build.BuildNumber)'
