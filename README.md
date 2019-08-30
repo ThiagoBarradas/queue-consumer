@@ -16,7 +16,7 @@ docker run --name queue-consumer -d \
     -e PopulateQueueQuantity=10000 \
     -e RetryCount=5 \        
     -e RetryTTL=300000 \
-	-e CreateQueue=true \
+    -e CreateQueue=true \
     thiagobarradas/queue-consumer:latest
 ```
 
