@@ -25,7 +25,7 @@ namespace QueueConsumer
             this.QueueManager = new QueueManager(configuration);
         }
 
-        public void Execute()
+        public bool Execute()
         {
             try
             {
@@ -41,13 +41,14 @@ namespace QueueConsumer
                     this.Threads.Add(HandleReceivedMessage(message, retryCount, deliveryTag));
                 };
 
-                while (true) { };
+                return true;
             }
             catch (Exception e)
             {
                 Logger.LogLineWithLevel("ERROR", "Execute: An exception occurred");
                 Logger.LogLineWithLevel("ERROR", "Message: {0}", e.Message);
                 Thread.Sleep(1000);
+                return false;
             }
         }
 

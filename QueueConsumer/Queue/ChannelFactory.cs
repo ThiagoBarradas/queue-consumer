@@ -8,6 +8,8 @@ namespace QueueConsumer.Queue
 
         private static IConnection Connection;
 
+        private static IModel Model;
+
         public static IModel Create(ConnectionFactory factory)
         {
             if (Connection == null)
@@ -21,7 +23,18 @@ namespace QueueConsumer.Queue
                 }
             }
 
-            return Connection.CreateModel();
+            if (Model == null)
+            {
+                lock (Lock)
+                {
+                    if (Model == null)
+                    {
+                        Model = Connection.CreateModel();
+                    }
+                }
+            }
+
+            return Model;
         }
 
         public static void CloseConnection()

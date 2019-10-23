@@ -1,6 +1,7 @@
 ﻿using QueueConsumer.Models;
 using System;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace QueueConsumer
 {
@@ -13,10 +14,14 @@ namespace QueueConsumer
 
             var processor = new QueueMessageProcessor(config);
 
-            while (true)
+            var task = new Task(() =>
             {
-                processor.Execute();
-            }
+                while (!processor.Execute()) { }
+            });
+
+            task.Start();
+
+            while(Console.ReadKey().Key != ConsoleKey.Escape) { }
         }
 
         private static void DisplayHeader(QueueConsumerConfiguration config)
