@@ -1,3 +1,5 @@
+[![Build Status](https://barradas.visualstudio.com/Contributions/_apis/build/status/Queue%20Consumer%20Worker?branchName=master)](https://barradas.visualstudio.com/Contributions/_build/latest?definitionId=5&branchName=master)
+
 # QueueConsumer
  
 A simple consumer for Rabbit MQ sending a post with basic auth and all structure for retry and dead queue;

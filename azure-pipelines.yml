@@ -10,7 +10,7 @@ jobs:
   - script: |
       pwd && ls -la
       dotnet restore 
-      dotnet publish -c Release -o bin/Release/netcoreapp$(netcore_version)
+      dotnet publish -c Release -o $(project_name)/bin/Release/netcoreapp$(netcore_version)
       mkdir artifact
       cp -r $(project_name)/bin/Release/netcoreapp$(netcore_version) artifact/$(Build.SourceBranchName)
     displayName: Build Application
