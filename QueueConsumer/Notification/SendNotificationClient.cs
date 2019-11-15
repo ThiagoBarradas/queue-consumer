@@ -27,6 +27,11 @@ namespace QueueConsumer.Notification
             var restClient = new RestClient(configuration.Url);
             restClient.Timeout = configuration.TimeoutInSeconds * 1000;
 
+            if (string.IsNullOrWhiteSpace(configuration.AuthToken) == false)
+            {
+                restClient.AddDefaultParameter("Authorization", configuration.AuthToken, ParameterType.HttpHeader);
+            }
+
             if (string.IsNullOrWhiteSpace(configuration.User) == false ||
                 string.IsNullOrWhiteSpace(configuration.Pass) == false)
             {

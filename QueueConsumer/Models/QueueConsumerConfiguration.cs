@@ -11,6 +11,7 @@ namespace QueueConsumer.Models
             this.Url = Environment.GetEnvironmentVariable("Url");
             this.User = Environment.GetEnvironmentVariable("User");
             this.Pass = Environment.GetEnvironmentVariable("Pass");
+            this.AuthToken = Environment.GetEnvironmentVariable("AuthToken");
             this.TimeoutInSeconds = int.Parse(Environment.GetEnvironmentVariable("TimeoutInSeconds") ?? "60");
             this.MaxThreads = int.Parse(Environment.GetEnvironmentVariable("MaxThreads") ?? "20");
             this.PopulateQueueQuantity = int.Parse(Environment.GetEnvironmentVariable("PopulateQueueQuantity") ?? "0");
@@ -38,6 +39,9 @@ namespace QueueConsumer.Models
         public string User { get; set; }
 
         public string Pass { get; set; }
+
+        public string AuthToken { get; set; }
+
 
         public int TimeoutInSeconds { get; set; }
 

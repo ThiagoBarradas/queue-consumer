@@ -34,6 +34,7 @@ namespace QueueConsumer
             Logger.LogLine("- Url: {0}", config.Url);
             Logger.LogLine("- User: {0}", config.User);
             Logger.LogLine("- Pass: {0}", string.IsNullOrWhiteSpace(config.Pass) ? "null" : "******");
+            Logger.LogLine("- AuthToken: {0}", string.IsNullOrWhiteSpace(config.AuthToken) ? "null" : "******");
             Logger.LogLine("- TimeoutInSeconds: {0}", config.TimeoutInSeconds);
             Logger.LogLine("- MaxThreads: {0}", config.MaxThreads);
             Logger.LogLine("- PopulateQueueQuantity: {0}", config.PopulateQueueQuantity);

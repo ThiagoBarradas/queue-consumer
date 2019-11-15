@@ -13,6 +13,7 @@ docker run --name queue-consumer -d \
     -e Url=http://pruu.herokuapp.com/dump/queue-consumer \
     -e User=user \
     -e Pass=password \
+	-e AuthToken=authorization-header 
     -e TimeoutInSeconds=30 \
     -e MaxThreads=100 \
     -e PopulateQueueQuantity=10000 \
@@ -33,6 +34,7 @@ Set environment variables to setup QueueConsumer:
 | `Url`                   | string | yes | url to send post with content as json body | `https://domain.com/service/v1/hook` |
 | `User`                  | string | no  | basic auth username | `username` |
 | `Pass`                  | string | no  | basic auth password | `password` |
+| `AuthToken`             | string | no  | authorization header | `some-token` |
 | `TimeoutInSeconds`      | int    | no  | timeout to send post | `60` default |
 | `MaxThreads`            | int    | no  | thread parallel max number | `20` default |
 | `PopulateQueueQuantity` | int    | no  | send messages to populate main queue, `0` to disable | `0` default |
