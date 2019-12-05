@@ -21,7 +21,7 @@ namespace QueueConsumer
 
             task.Start();
 
-            while(Console.ReadKey().Key != ConsoleKey.Escape) { }
+            Console.Read(); 
         }
 
         private static void DisplayHeader(QueueConsumerConfiguration config)
