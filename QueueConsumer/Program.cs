@@ -24,6 +24,7 @@ namespace QueueConsumer
                 task.Start();
 
                 Console.Read();
+                Console.WriteLine("Finish!");
             }
             catch(Exception e)
             {
