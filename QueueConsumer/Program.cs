@@ -9,19 +9,27 @@ namespace QueueConsumer
     {
         public static void Main(string[] args = null)
         {
-            var config = QueueConsumerConfiguration.Create();
-            DisplayHeader(config);
-
-            var processor = new QueueMessageProcessor(config);
-
-            var task = new Task(() =>
+            try
             {
-                while (!processor.Execute()) { }
-            });
+                var config = QueueConsumerConfiguration.Create();
+                DisplayHeader(config);
 
-            task.Start();
+                var processor = new QueueMessageProcessor(config);
 
-            Console.Read(); 
+                var task = new Task(() =>
+                {
+                    while (!processor.Execute()) { }
+                });
+
+                task.Start();
+
+                Console.Read();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Program Exception:");
+                Console.WriteLine(" - {0}\n\n{1}", e.Message, e.StackTrace);
+            }
         }
 
         private static void DisplayHeader(QueueConsumerConfiguration config)
