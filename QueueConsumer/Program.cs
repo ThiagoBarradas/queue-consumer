@@ -1,6 +1,7 @@
 ﻿using QueueConsumer.Models;
 using System;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace QueueConsumer
@@ -11,6 +12,7 @@ namespace QueueConsumer
         {
             try
             {
+                var tokenSource = new CancellationTokenSource();
                 var config = QueueConsumerConfiguration.Create();
                 DisplayHeader(config);
 
@@ -19,12 +21,17 @@ namespace QueueConsumer
                 var task = new Task(() =>
                 {
                     while (!processor.Execute()) { }
-                });
+                }, tokenSource.Token);
 
-                task.Start();
+                Console.CancelKeyPress += (sender, eventArgs) =>
+                {
+                    tokenSource.Cancel();
+                };
+
+                task.Wait();
 
                 Console.Read();
-                Console.WriteLine("Finish!");
+                Console.WriteLine("Program Finished!");
             }
             catch(Exception e)
             {
