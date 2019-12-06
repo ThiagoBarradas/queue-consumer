@@ -25,13 +25,13 @@ namespace QueueConsumer
 
                 Console.CancelKeyPress += (sender, eventArgs) =>
                 {
+                    Console.WriteLine("Aborting Program...");
                     tokenSource.Cancel();
+                    task.Dispose();
                 };
 
+                task.Start();
                 task.Wait();
-
-                Console.Read();
-                Console.WriteLine("Program Finished!");
             }
             catch(Exception e)
             {

@@ -49,5 +49,24 @@ namespace QueueConsumer.Models
         {
             return new QueueConsumerConfiguration();
         }
+
+        public static QueueConsumerConfiguration CreateForDebug(bool populate)
+        {
+            return new QueueConsumerConfiguration
+            {
+                AuthToken = "token",
+                CreateQueue = true,
+                MaxThreads = 100,
+                Pass = "pass",
+                PopulateQueueQuantity = populate ? 100000 : 0,
+                QueueConnectionString = "amqp://guest:guest@localhost:5672/vhost",
+                QueueName = "debugggg",
+                RetryCount = 5,
+                RetryTTL = 30000,
+                TimeoutInSeconds = 30,
+                Url = "http://pruu.herokuapp.com/dump/queue-consumer",
+                User = "user"
+            };
+        }
     }
 }
