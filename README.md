@@ -2,7 +2,7 @@
 
 # QueueConsumer
  
-A simple consumer for Rabbit MQ sending a post with basic auth and all structure for retry and dead queue;
+A simple consumer for Rabbit MQ sending a post with basic auth and all structure for retry and dead queue; 
 
 ## Running with Docker
 
