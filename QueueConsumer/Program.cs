@@ -10,7 +10,10 @@ namespace QueueConsumer
     public class Program
     {
         public static void Main(string[] args = null)
-        {           
+        {
+            ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+
             try
             {
                 var tokenSource = new CancellationTokenSource();
