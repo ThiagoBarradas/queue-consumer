@@ -1,4 +1,5 @@
 ﻿using RabbitMQ.Client;
+using System.Net.Security;
 
 namespace QueueConsumer.Queue
 {
@@ -18,6 +19,10 @@ namespace QueueConsumer.Queue
                 {
                     if (Connection == null)
                     {
+                        factory.Ssl.CertificateValidationCallback += (sender, certificate, chain, errors) => true;
+                        factory.Ssl.AcceptablePolicyErrors = SslPolicyErrors.RemoteCertificateChainErrors
+                                                           | SslPolicyErrors.RemoteCertificateNameMismatch
+                                                           | SslPolicyErrors.RemoteCertificateNotAvailable;
                         Connection = factory.CreateConnection();
                     }
                 }
