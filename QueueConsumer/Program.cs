@@ -1,5 +1,6 @@
-﻿using QueueConsumer.Models;
+using QueueConsumer.Models;
 using System;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,8 @@ namespace QueueConsumer
     {
         public static void Main(string[] args = null)
         {
+            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            
             try
             {
                 var tokenSource = new CancellationTokenSource();
