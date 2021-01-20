@@ -18,6 +18,7 @@ namespace QueueConsumer.Models
             this.CreateQueue = bool.Parse(Environment.GetEnvironmentVariable("CreateQueue") ?? "false");
             this.RetryTTL = int.Parse(Environment.GetEnvironmentVariable("RetryTTL") ?? "60000");
             this.RetryCount = int.Parse(Environment.GetEnvironmentVariable("RetryCount") ?? "5");
+            this.Condition = Environment.GetEnvironmentVariable("Condition");
         }
 
         public int RetryCount { get; set; }
@@ -31,6 +32,8 @@ namespace QueueConsumer.Models
         public int MaxThreads { get; set; }
 
         public string QueueConnectionString { get; set; }
+
+        public string Condition { get; set; }
 
         public string QueueName { get; set; }
 
@@ -65,7 +68,8 @@ namespace QueueConsumer.Models
                 RetryTTL = 30000,
                 TimeoutInSeconds = 30,
                 Url = "http://pruu.herokuapp.com/dump/queue-consumer",
-                User = "user"
+                User = "user",
+                Condition = null
             };
         }
     }

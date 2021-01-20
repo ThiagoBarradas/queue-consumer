@@ -55,6 +55,19 @@ namespace QueueConsumer
         public async Task HandleReceivedMessage(string message, int retryCount, ulong deliveryTag)
         {
             Logger.LogLineWithLevel("OK", "HandleReceivedMessage: Processing message [{0}] started", deliveryTag);
+
+            if (!string.IsNullOrWhiteSpace(this.Configuration.Condition))
+            {
+                var (expression, isValid) = message.IsValid(this.Configuration.Condition);
+
+                if (!isValid)
+                {
+                    this.QueueManager.Ack(deliveryTag);
+                    Logger.LogLineWithLevel("OK", "HandleReceivedMessage: Message ignored [{0}]! {1}", deliveryTag, expression);
+                    return;
+                }
+            }
+
             var success = await SendNotificationClient.SendNotification(this.Configuration, message);
 
             if (success)

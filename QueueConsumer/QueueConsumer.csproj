@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Flee" Version="1.2.2" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
     <PackageReference Include="RestSharp.Serilog.Auto" Version="1.0.37" />
   </ItemGroup>
