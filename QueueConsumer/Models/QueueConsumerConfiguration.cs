@@ -84,8 +84,7 @@ namespace QueueConsumer.Models
                 RetryTTL = 30000,
                 TimeoutInSeconds = 30,
                 Url = "http://pruu.herokuapp.com/dump/queue-consumer",
-                User = "user",
-                Condition = "\"{data.anti_fraud_data.antifraud_analysis_service_enum}\" = \"GhostModeOnly\" OR \"{data.anti_fraud_data.antifraud_analysis_service_enum}\" = \"SentinelaStaging\" OR \"{data.anti_fraud_data.antifraud_analysis_service_enum}\" = \"SentinelaV2Staging\" OR \"{data.anti_fraud_data.antifraud_analysis_service_enum}\" = \"PagarmeAntifraudStaging\" OR \"{data.anti_fraud_data.antifraud_analysis_service_enum}\" = \"MundiAntifraud2Staging\"",
+                User = "user",                
                 StatusCodeAcceptToSuccess = "200;201;202;204",
                 StatusCodeAcceptToSuccessList = null,
             };
