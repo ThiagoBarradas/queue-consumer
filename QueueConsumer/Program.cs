@@ -37,7 +37,7 @@ namespace QueueConsumer
                 task.Start();
                 task.Wait();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine("Program Exception:");
                 Console.WriteLine(" - {0}\n\n{1}", e.Message, e.StackTrace);
@@ -62,6 +62,7 @@ namespace QueueConsumer
             Logger.LogLine("- RetryCount: {0}", config.RetryCount);
             Logger.LogLine("- RetryTTL: {0}", config.RetryTTL);
             Logger.LogLine("- Condition: {0}", config.Condition);
+            Logger.LogLine("- StatusCodeAcceptToSuccessList: {0}", string.Join(";",config.StatusCodeAcceptToSuccessList));
             Logger.LogLine("");
         }
     }

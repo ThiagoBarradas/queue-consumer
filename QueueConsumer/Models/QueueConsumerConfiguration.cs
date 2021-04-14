@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace QueueConsumer.Models
 {
@@ -19,6 +21,8 @@ namespace QueueConsumer.Models
             this.RetryTTL = int.Parse(Environment.GetEnvironmentVariable("RetryTTL") ?? "60000");
             this.RetryCount = int.Parse(Environment.GetEnvironmentVariable("RetryCount") ?? "5");
             this.Condition = Environment.GetEnvironmentVariable("Condition");
+            this.StatusCodeAcceptToSuccess = Environment.GetEnvironmentVariable("StatusCodeAcceptToSuccess") ?? "200;201;202;204";
+            this.StatusCodeAcceptToSuccessList = null;
         }
 
         public int RetryCount { get; set; }
@@ -45,6 +49,18 @@ namespace QueueConsumer.Models
 
         public string AuthToken { get; set; }
 
+        private string StatusCodeAcceptToSuccess { get; set; }
+
+        private IList<int> _StatusCodeAcceptToSuccessList { get; set; }
+
+        public IList<int> StatusCodeAcceptToSuccessList
+        {
+            get => _StatusCodeAcceptToSuccessList;
+            private set
+            {
+                _StatusCodeAcceptToSuccessList = StatusCodeAcceptToSuccess?.Split(";").Select(int.Parse).ToList();
+            }
+        }
 
         public int TimeoutInSeconds { get; set; }
 
@@ -62,14 +78,15 @@ namespace QueueConsumer.Models
                 MaxThreads = 100,
                 Pass = "pass",
                 PopulateQueueQuantity = populate ? 100000 : 0,
-                QueueConnectionString = "amqp://guest:guest@localhost:5672/vhost",
-                QueueName = "debugggg",
+                QueueConnectionString = "amqp://guest:guest@localhost:5672/",
+                QueueName = "debug",
                 RetryCount = 5,
                 RetryTTL = 30000,
                 TimeoutInSeconds = 30,
                 Url = "http://pruu.herokuapp.com/dump/queue-consumer",
-                User = "user",
-                Condition = null
+                User = "user",                
+                StatusCodeAcceptToSuccess = "200;201;202;204",
+                StatusCodeAcceptToSuccessList = null,
             };
         }
     }

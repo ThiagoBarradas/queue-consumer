@@ -35,7 +35,7 @@ namespace QueueConsumer.Queue
                     {
                         { "retry_count", retryCount }
                     }
-                }, 
+                },
                 body: buffer);
         }
 
@@ -44,9 +44,9 @@ namespace QueueConsumer.Queue
             var buffer = Encoding.UTF8.GetBytes(message);
             this.Channel.BasicPublish(
                 exchange: "",
-                routingKey: $"{this.Configuration.QueueName}-dead", 
-                basicProperties: new BasicProperties { Persistent = true }, 
-                body:  buffer);
+                routingKey: $"{this.Configuration.QueueName}-dead",
+                basicProperties: new BasicProperties { Persistent = true },
+                body: buffer);
         }
 
         public void AddMessage(string message)
@@ -55,7 +55,7 @@ namespace QueueConsumer.Queue
             this.Channel.BasicPublish(
                 exchange: "",
                 routingKey: this.Configuration.QueueName,
-                basicProperties: new BasicProperties { Persistent = true }, 
+                basicProperties: new BasicProperties { Persistent = true },
                 body: buffer);
         }
 
@@ -78,7 +78,7 @@ namespace QueueConsumer.Queue
                 var connectionFactory = new ConnectionFactory()
                 {
                     RequestedHeartbeat = 30,
-                    NetworkRecoveryInterval = TimeSpan.FromSeconds(5), 
+                    NetworkRecoveryInterval = TimeSpan.FromSeconds(5),
                     TopologyRecoveryEnabled = true,
                     Uri = new Uri(this.Configuration.QueueConnectionString)
                 };
@@ -88,7 +88,7 @@ namespace QueueConsumer.Queue
 
                 this.Configure();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.LogLineWithLevel("ERROR", "TryConnect: An exception occurred");
                 Logger.LogLineWithLevel("ERROR", "Message: {0}", e.Message);
@@ -116,14 +116,14 @@ namespace QueueConsumer.Queue
 
                 this.Channel.ExchangeDeclare($"{this.Configuration.QueueName}-retry-exchange", "direct", true);
                 this.Channel.QueueDeclare($"{this.Configuration.QueueName}-retry", true, false, false, retryQueueArgs);
-                this.Channel.QueueBind($"{this.Configuration.QueueName}-retry", 
+                this.Channel.QueueBind($"{this.Configuration.QueueName}-retry",
                                        $"{this.Configuration.QueueName}-retry-exchange",
                                        $"{this.Configuration.QueueName}-retry-routing-key", null);
 
                 this.Channel.ExchangeDeclare($"{this.Configuration.QueueName}-dead-exchange", "direct", true);
                 this.Channel.QueueDeclare($"{this.Configuration.QueueName}-dead", true, false, false, null);
-                this.Channel.QueueBind($"{this.Configuration.QueueName}-dead", 
-                                       $"{this.Configuration.QueueName}-dead-exchange", 
+                this.Channel.QueueBind($"{this.Configuration.QueueName}-dead",
+                                       $"{this.Configuration.QueueName}-dead-exchange",
                                        $"{this.Configuration.QueueName}-dead-routing-key", null);
             }
 
@@ -143,7 +143,7 @@ namespace QueueConsumer.Queue
 
             consumer.Received += this.Received;
 
-            Channel.BasicQos(0, (ushort) this.Configuration.MaxThreads, false);
+            Channel.BasicQos(0, (ushort)this.Configuration.MaxThreads, false);
             Channel.BasicConsume(queue: this.Configuration.QueueName, consumer: consumer);
         }
 
@@ -152,11 +152,11 @@ namespace QueueConsumer.Queue
             object headerValue = null;
             try
             {
-                eventArgs.BasicProperties.Headers.TryGetValue("retry_count", out headerValue);
+                eventArgs?.BasicProperties?.Headers?.TryGetValue("retry_count", out headerValue);
             }
             catch (Exception) { }
 
-            int retryCount = headerValue != null ? (int) headerValue : 0;
+            int retryCount = headerValue != null ? (int)headerValue : 0;
 
             var message = Encoding.UTF8.GetString(eventArgs.Body);
             ReceiveMessage?.Invoke(message, retryCount, eventArgs.DeliveryTag);

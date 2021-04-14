@@ -14,12 +14,9 @@ namespace QueueConsumer.Notification
             RestRequest request = new RestRequest(Method.POST);
             request.AddParameter("application/json; charset=utf-8", message, ParameterType.RequestBody);
 
-;           var response = await GetRestClient(configuration).ExecuteTaskAsync(request);
+            var response = await GetRestClient(configuration).ExecuteTaskAsync(request);
 
-            return response.StatusCode == HttpStatusCode.OK ||
-                   response.StatusCode == HttpStatusCode.Created ||
-                   response.StatusCode == HttpStatusCode.Accepted ||
-                   response.StatusCode == HttpStatusCode.NoContent;
+            return configuration.StatusCodeAcceptToSuccessList.Contains((int)response.StatusCode);
         }
 
         private static IRestClient GetRestClient(QueueConsumerConfiguration configuration)

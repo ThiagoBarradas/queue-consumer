@@ -1,5 +1,6 @@
 ﻿using Flee.PublicTypes;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -9,7 +10,20 @@ namespace QueueConsumer
     {
         public static (string expression, bool isValid) IsValid(this string json, string condition)
         {
-            JObject obj = JObject.Parse(json);
+            JObject obj;
+
+            try
+            {
+                obj = JObject.Parse(json);
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine("========================= Json With Error =========================");
+                Console.WriteLine(json);
+                Console.WriteLine("========================= Json With Error =========================");
+
+                return (error.Message, false);
+            }
 
             var expression = ReplaceParameters(obj, condition);
 
