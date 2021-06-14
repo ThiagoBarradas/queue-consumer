@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using NewRelic.Api.Agent;
+using Newtonsoft.Json;
 using QueueConsumer.Models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -69,6 +70,7 @@ namespace QueueConsumer.Queue
             Channel.BasicNack(deliveryTag, false, requeued);
         }
 
+        [Transaction]
         public void TryConnect()
         {
             try

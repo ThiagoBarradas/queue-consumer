@@ -1,4 +1,5 @@
-﻿using QueueConsumer.Models;
+﻿using NewRelic.Api.Agent;
+using QueueConsumer.Models;
 using QueueConsumer.Notification;
 using QueueConsumer.Queue;
 using RestSharp;
@@ -52,7 +53,8 @@ namespace QueueConsumer
                 return false;
             }
         }
-
+        
+        [Transaction]
         public async Task HandleReceivedMessage(string message, int retryCount, ulong deliveryTag)
         {
             Logger.LogLineWithLevel("OK", "HandleReceivedMessage: Processing message [{0}] started", deliveryTag);

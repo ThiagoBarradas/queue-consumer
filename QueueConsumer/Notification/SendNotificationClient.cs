@@ -1,4 +1,5 @@
-﻿using QueueConsumer.Models;
+﻿using NewRelic.Api.Agent;
+using QueueConsumer.Models;
 using RestSharp;
 using RestSharp.Authenticators;
 using System;
@@ -8,6 +9,7 @@ namespace QueueConsumer.Notification
 {
     public static class SendNotificationClient
     {
+        [Trace]
         public static async Task<bool> SendNotification(QueueConsumerConfiguration configuration, string message)
         {
             RestRequest request = new RestRequest(Method.POST);
