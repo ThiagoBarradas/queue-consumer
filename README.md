@@ -41,6 +41,26 @@ Set environment variables to setup QueueConsumer:
 | `RetryCount `           | int    | no  | max number of retries, `0` to disable | `5` default |
 | `RetryTTL`              | int    | no  | ttl in ms to retry a message, `0` to disable | `60000` default |
 
+Others properties:
+
+- `StatusCodeAcceptToSuccess` 
+- `LogDomain` 
+- `LogApplication` 
+- `LogBlacklist` 
+- `LogDebugEnabled` 
+- `LogSeqEnabled` 
+- `LogSeqUrl` 
+- `LogSeqApiKey` 
+- `LogSplunkEnabled` 
+- `LogSplunkUrl` 
+- `LogSplunkToken` 
+- `LogSplunkIndex` 
+- `LogSplunkCompany` 
+- `LogNewRelicEnabled` 
+- `NEW_RELIC_APP_NAME` 
+- `NEW_RELIC_LICENSE_KEY` 
+- `CORECLR_ENABLE_PROFILING` 
+
 ### Generated queues/exchanges/routing-keys
 
 | Queue | Exchange | Routing Key |

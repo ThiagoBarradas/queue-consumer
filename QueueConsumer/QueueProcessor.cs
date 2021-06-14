@@ -1,6 +1,7 @@
 ﻿using QueueConsumer.Models;
 using QueueConsumer.Notification;
 using QueueConsumer.Queue;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;

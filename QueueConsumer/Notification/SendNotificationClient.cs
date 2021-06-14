@@ -2,7 +2,6 @@
 using RestSharp;
 using RestSharp.Authenticators;
 using System;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace QueueConsumer.Notification
@@ -14,14 +13,20 @@ namespace QueueConsumer.Notification
             RestRequest request = new RestRequest(Method.POST);
             request.AddParameter("application/json; charset=utf-8", message, ParameterType.RequestBody);
 
-            var response = await GetRestClient(configuration).ExecuteTaskAsync(request);
+            var response = await GetRestClient(configuration).ExecuteAsync(request);
 
             return configuration.StatusCodeAcceptToSuccessList.Contains((int)response.StatusCode);
         }
 
         private static IRestClient GetRestClient(QueueConsumerConfiguration configuration)
         {
-            var restClient = new RestClient(configuration.Url);
+            var config = new RestClientAutologConfiguration
+            {
+                EnabledLog = configuration.LogEnabled,
+                JsonBlacklist = configuration.LogBlacklistList.ToArray()
+            };
+
+            var restClient = new RestClientAutolog(configuration.Url, config);
             restClient.Timeout = configuration.TimeoutInSeconds * 1000;
 
             if (string.IsNullOrWhiteSpace(configuration.AuthToken) == false)
@@ -43,28 +48,14 @@ namespace QueueConsumer.Notification
 
     public static class RestClientExtensions
     {
-        public static Task<IRestResponse> ExecuteTaskAsync(this RestClient restClient, RestRequest request)
+        public async static Task<IRestResponse> ExecuteTaskAsync(this RestClient restClient, RestRequest request)
         {
             if (restClient == null)
             {
                 throw new NullReferenceException();
             }
 
-            var taskCompletionSource = new TaskCompletionSource<IRestResponse>();
-
-            restClient.ExecuteAsync(request, (response) =>
-            {
-                if (response.ErrorException != null)
-                {
-                    taskCompletionSource.TrySetException(response.ErrorException);
-                }
-                else
-                {
-                    taskCompletionSource.TrySetResult(response);
-                }
-            });
-
-            return taskCompletionSource.Task;
+            return await restClient.ExecuteAsync(request);
         }
     }
 }

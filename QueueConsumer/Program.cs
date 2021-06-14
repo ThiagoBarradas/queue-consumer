@@ -63,6 +63,27 @@ namespace QueueConsumer
             Logger.LogLine("- RetryTTL: {0}", config.RetryTTL);
             Logger.LogLine("- Condition: {0}", config.Condition);
             Logger.LogLine("- StatusCodeAcceptToSuccessList: {0}", string.Join(";",config.StatusCodeAcceptToSuccessList));
+            
+            Logger.LogLine("- LogEnabled: {0}", config.LogEnabled);
+            Logger.LogLine("- LogDomain: {0}", config.LogDomain);
+            Logger.LogLine("- LogApplication: {0}", config.LogApplication);
+            Logger.LogLine("- LogBlacklist: {0}", config.LogBlacklist);
+
+            Logger.LogLine("- LogSeqEnabled: {0}", config.LogSeqEnabled);
+            Logger.LogLine("- LogSeqUrl: {0}", config.LogSeqUrl);
+            Logger.LogLine("- LogSeqApiKey: {0}", string.IsNullOrWhiteSpace(config.LogSeqApiKey) ? "null" : "******");
+
+            Logger.LogLine("- LogSplunkEnabled: {0}", config.LogSplunkEnabled);
+            Logger.LogLine("- LogSplunkUrl: {0}", config.LogSplunkUrl);
+            Logger.LogLine("- LogSplunkIndex: {0}", config.LogSplunkIndex);
+            Logger.LogLine("- LogSplunkCompany: {0}", config.LogSplunkCompany);
+            Logger.LogLine("- LogSplunkToken: {0}", string.IsNullOrWhiteSpace(config.LogSplunkToken) ? "null" : "******");
+
+            Logger.LogLine("- LogNewRelicEnabled: {0}", config.LogNewRelicEnabled);
+            Logger.LogLine("- LogNewRelicAppName: {0}", config.LogNewRelicAppName);
+            Logger.LogLine("- LogNewRelicLicenseKey: {0}", string.IsNullOrWhiteSpace(config.LogNewRelicLicenseKey) ? "null" : "******");
+            Logger.LogLine("- NewRelicApmEnabled: {0}", config.NewRelicApmEnabled);
+
             Logger.LogLine("");
         }
     }
