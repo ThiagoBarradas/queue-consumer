@@ -1,8 +1,9 @@
-﻿using QueueConsumer.Models;
+﻿using Newtonsoft.Json.Linq;
+using QueueConsumer.Models;
 using RestSharp;
 using RestSharp.Authenticators;
 using System;
-using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace QueueConsumer.Notification
@@ -14,14 +15,16 @@ namespace QueueConsumer.Notification
             RestRequest request = new RestRequest(Method.POST);
             request.AddParameter("application/json; charset=utf-8", message, ParameterType.RequestBody);
 
-            var response = await GetRestClient(configuration).ExecuteTaskAsync(request);
+            string url = ExtractUrl(configuration, message);
+
+            var response = await GetRestClient(configuration, url).ExecuteTaskAsync(request);
 
             return configuration.StatusCodeAcceptToSuccessList.Contains((int)response.StatusCode);
         }
 
-        private static IRestClient GetRestClient(QueueConsumerConfiguration configuration)
+        private static IRestClient GetRestClient(QueueConsumerConfiguration configuration, string url)
         {
-            var restClient = new RestClient(configuration.Url);
+            var restClient = new RestClient(url);
             restClient.Timeout = configuration.TimeoutInSeconds * 1000;
 
             if (string.IsNullOrWhiteSpace(configuration.AuthToken) == false)
@@ -38,6 +41,29 @@ namespace QueueConsumer.Notification
             }
 
             return restClient;
+        }
+
+        private static string ExtractUrl(QueueConsumerConfiguration configuration, string message)
+        {
+            if (!configuration.ShouldUseUrlWithDynamicMatch)
+            {
+                return configuration.Url;
+            }
+
+            string url = configuration.Url;
+
+            var messageAsJsonObj = JObject.Parse(message);
+
+            var fieldsPathToMatch = Regex.Matches(configuration.Url, @"{{[\w\.]*}}");
+
+            foreach (var fieldPathAsObj in fieldsPathToMatch)
+            {
+                string fieldPath = fieldPathAsObj.ToString().Trim('{', '}');
+                var fieldValue = messageAsJsonObj.SelectToken(fieldPath);
+                url = url.Replace("{{" + fieldPath + "}}", fieldValue.Value<string>());
+            }
+
+            return url;
         }
     }
 
