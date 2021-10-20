@@ -200,7 +200,7 @@ namespace QueueConsumer.Models
                 RetryTTL = 30000,
                 TimeoutInSeconds = 30,
                 Url = "http://pruu.herokuapp.com/dump/queue-consumer",
-                User = "user",                
+                User = "user",
                 StatusCodeAcceptToSuccess = "200;201;202;204",
                 StatusCodeAcceptToSuccessList = null,
             };
