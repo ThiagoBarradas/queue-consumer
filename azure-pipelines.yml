@@ -270,6 +270,6 @@ stages:
         Dockerfile: '$(System.DefaultWorkingDirectory)/Dockerfile'
         buildContext: '$(System.DefaultWorkingDirectory)'
         tags: |
-        $(Version)
-        $(VersionType)
+          $(Version)
+          $(VersionType)
   
