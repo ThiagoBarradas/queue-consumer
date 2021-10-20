@@ -246,9 +246,9 @@ stages:
       displayName: Get Application Artifact
       inputs:
         artifact: $(project_name)
-      - script: |
-          mkdir -p $(project_name)/bin/Release
-          cp -r $(Pipeline.Workspace)/bin $(project_name)/bin
+    - script: |
+        mkdir -p $(project_name)/bin/Release
+        cp -r $(Pipeline.Workspace)/bin $(project_name)/bin
       displayName: Prepare Files
     - task: replacetokens@3
       inputs:
