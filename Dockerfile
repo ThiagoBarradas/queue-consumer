@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/dotnet/runtime:3.1
 ENV CURRENT_VERSION="__[Version]__"
 
 # Args
-ARG distFolder=QueueConsumer/bin/Release/netcoreapp2.2
+ARG distFolder=QueueConsumer/bin/Release/netcoreapp3.1
 ARG appFile=QueueConsumer.dll
 
 # NewRelic
