@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/dotnet/runtime:3.1
 ENV CURRENT_VERSION="__[Version]__"
 
 # Args
-ARG distFolder=QueueConsumer/bin/Release/netcoreapp3.1
+ARG distFolder=QueueConsumer/bin
 ARG appFile=QueueConsumer.dll
 
 # NewRelic
@@ -26,7 +26,7 @@ RUN ls
 COPY ${distFolder} /app
 
 # Run application
-WORKDIR /app
+WORKDIR /app    
 RUN ls
 ENV appFile=$appFile
 ENTRYPOINT dotnet $appFile
