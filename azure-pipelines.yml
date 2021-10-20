@@ -118,7 +118,7 @@ stages:
       displayName: Store Application Artifact
       inputs:
         path: $(System.DefaultWorkingDirectory)/artifact
-        artifact: $(project_path)
+        artifact: $(project_name)
 
   - job: UnitTests
     dependsOn: 
@@ -247,7 +247,7 @@ stages:
       inputs:
         artifact: $(project_name)
     - script: |
-        mkdir -p $(project_name)/bin/Release
+        mkdir -p $(project_name)/bin
         cp -r $(Pipeline.Workspace)/bin $(project_name)/bin
       displayName: Prepare Files
     - task: replacetokens@3
