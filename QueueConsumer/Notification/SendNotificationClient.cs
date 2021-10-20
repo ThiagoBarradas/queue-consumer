@@ -12,14 +12,14 @@ namespace QueueConsumer.Notification
     public static class SendNotificationClient
     {
         [Trace]
-        public static async Task<bool> SendNotification(QueueConsumerConfiguration configuration, string message)
+        public static async Task<bool> SendNotification(QueueConsumerConfiguration configuration, string urlFromMessage, string message)
         {
             RestRequest request = new RestRequest(Method.POST);
             request.AddParameter("application/json; charset=utf-8", message, ParameterType.RequestBody);
 
-            string url = ExtractUrl(configuration, message);
+            string url = ExtractUrl(configuration, urlFromMessage, message);
 
-            var response = await GetRestClient(configuration, url).ExecuteTaskAsync(request);
+            var response = await GetRestClient(configuration, url).ExecuteAsync(request);
 
             return configuration.StatusCodeAcceptToSuccessList.Contains((int)response.StatusCode);
         }
@@ -51,14 +51,14 @@ namespace QueueConsumer.Notification
             return restClient;
         }
 
-        private static string ExtractUrl(QueueConsumerConfiguration configuration, string message)
+        private static string ExtractUrl(QueueConsumerConfiguration configuration, string urlFromMessage, string message)
         {
+            string url = urlFromMessage ?? configuration.Url;
+
             if (!configuration.ShouldUseUrlWithDynamicMatch)
             {
-                return configuration.Url;
+                return url;
             }
-
-            string url = configuration.Url;
 
             var messageAsJsonObj = JObject.Parse(message);
 
@@ -77,7 +77,7 @@ namespace QueueConsumer.Notification
 
     public static class RestClientExtensions
     {
-        public async static Task<IRestResponse> ExecuteTaskAsync(this RestClient restClient, RestRequest request)
+        public async static Task<IRestResponse> ExecuteTaskAsync(this IRestClient restClient, RestRequest request)
         {
             if (restClient == null)
             {

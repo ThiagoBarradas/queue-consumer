@@ -25,7 +25,8 @@ namespace QueueConsumer.Models
             this.RetryCount = int.Parse(Environment.GetEnvironmentVariable("RetryCount") ?? "5");
             this.Condition = Environment.GetEnvironmentVariable("Condition");
             this.StatusCodeAcceptToSuccess = Environment.GetEnvironmentVariable("StatusCodeAcceptToSuccess") ?? "200;201;202;204";
-            this.StatusCodeAcceptToSuccessList = null;
+            this.StatusCodeAcceptToSuccessList = null; // force set?
+            this.ShouldUseUrlWithDynamicMatch = bool.Parse(Environment.GetEnvironmentVariable("ShouldUseUrlWithDynamicMatch") ?? "false");
             this.LogDomain = Environment.GetEnvironmentVariable("LogDomain");
             this.LogApplication = Environment.GetEnvironmentVariable("LogApplication");
             this.LogBlacklist = Environment.GetEnvironmentVariable("LogBlacklist");
@@ -119,6 +120,8 @@ namespace QueueConsumer.Models
         public string LogDomain { get; set; }
 
         public string LogApplication { get; set; }
+
+        public bool ShouldUseUrlWithDynamicMatch { get; set; }
 
         public List<string> LogBlacklistList { get; set; } = new List<string>();
 

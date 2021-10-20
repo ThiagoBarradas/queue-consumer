@@ -14,7 +14,7 @@ namespace QueueConsumer.Queue
     {
         private IModel Channel;
 
-        public Action<string, int, ulong> ReceiveMessage;
+        public Action<string, int, string, ulong> ReceiveMessage;
 
         public QueueConsumerConfiguration Configuration { get; set; }
 
@@ -23,7 +23,7 @@ namespace QueueConsumer.Queue
             this.Configuration = configuration;
         }
 
-        public void AddRetryMessage(string message, int retryCount)
+        public void AddRetryMessage(string message, int retryCount, string url)
         {
             var buffer = Encoding.UTF8.GetBytes(message);
             this.Channel.BasicPublish(
@@ -32,31 +32,36 @@ namespace QueueConsumer.Queue
                 basicProperties: new BasicProperties
                 {
                     Persistent = true,
-                    Headers = new Dictionary<string, object>
-                    {
-                        { "retry_count", retryCount }
-                    }
+                    Headers = this.GetHeaders(retryCount, url)
                 },
                 body: buffer);
         }
 
-        public void AddDeadMessage(string message)
+        public void AddDeadMessage(string message, string url)
         {
             var buffer = Encoding.UTF8.GetBytes(message);
             this.Channel.BasicPublish(
                 exchange: "",
                 routingKey: $"{this.Configuration.QueueName}-dead",
-                basicProperties: new BasicProperties { Persistent = true },
+                basicProperties: new BasicProperties 
+                { 
+                    Persistent = true,
+                    Headers = this.GetHeaders(null, url)
+                },
                 body: buffer);
         }
 
-        public void AddMessage(string message)
+        public void AddMessage(string message, string url)
         {
             var buffer = Encoding.UTF8.GetBytes(message);
             this.Channel.BasicPublish(
                 exchange: "",
                 routingKey: this.Configuration.QueueName,
-                basicProperties: new BasicProperties { Persistent = true },
+                basicProperties: new BasicProperties 
+                { 
+                    Persistent = true,
+                    Headers = this.GetHeaders(null, url)
+                },
                 body: buffer);
         }
 
@@ -135,7 +140,7 @@ namespace QueueConsumer.Queue
                 Console.CursorVisible = false;
                 for (int i = 0; i < this.Configuration.PopulateQueueQuantity; i++)
                 {
-                    this.AddMessage(JsonConvert.SerializeObject(new { message = i }));
+                    this.AddMessage(JsonConvert.SerializeObject(new { message = i }), null);
                 }
                 Console.CursorVisible = true;
                 Console.WriteLine();
@@ -151,17 +156,37 @@ namespace QueueConsumer.Queue
 
         private void Received(object model, BasicDeliverEventArgs eventArgs)
         {
-            object headerValue = null;
+            object retryHeaderValue = null;
+            object urlHeaderValue = null;
             try
             {
-                eventArgs?.BasicProperties?.Headers?.TryGetValue("retry_count", out headerValue);
+                eventArgs?.BasicProperties?.Headers?.TryGetValue("retry_count", out retryHeaderValue);
+                eventArgs?.BasicProperties?.Headers?.TryGetValue("url", out urlHeaderValue);
             }
             catch (Exception) { }
 
-            int retryCount = headerValue != null ? (int)headerValue : 0;
+            int retryCount = retryHeaderValue != null ? (int)retryHeaderValue : 0;
+            string url = urlHeaderValue != null ? urlHeaderValue.ToString() : null;
 
             var message = Encoding.UTF8.GetString(eventArgs.Body);
-            ReceiveMessage?.Invoke(message, retryCount, eventArgs.DeliveryTag);
+            ReceiveMessage?.Invoke(message, retryCount, url, eventArgs.DeliveryTag);
+        }
+
+        private Dictionary<string, object> GetHeaders(int? retryCount, string url)
+        {
+            var headers = new Dictionary<string, object>();
+
+            if (retryCount != null)
+            {
+                headers.Add("retry_count", retryCount.Value);
+            };
+
+            if (string.IsNullOrWhiteSpace(url) == false)
+            {
+                headers.Add("url", url);
+            }
+
+            return headers;
         }
 
         public void Dispose()
