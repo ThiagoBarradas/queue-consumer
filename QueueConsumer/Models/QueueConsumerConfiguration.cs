@@ -23,6 +23,7 @@ namespace QueueConsumer.Models
             this.Condition = Environment.GetEnvironmentVariable("Condition");
             this.StatusCodeAcceptToSuccess = Environment.GetEnvironmentVariable("StatusCodeAcceptToSuccess") ?? "200;201;202;204";
             this.StatusCodeAcceptToSuccessList = null;
+            this.ShouldUseUrlWithDynamicMatch = bool.Parse(Environment.GetEnvironmentVariable("ShouldUseUrlWithDynamicMatch") ?? "false");
         }
 
         public int RetryCount { get; set; }
@@ -48,6 +49,8 @@ namespace QueueConsumer.Models
         public string Pass { get; set; }
 
         public string AuthToken { get; set; }
+
+        public bool ShouldUseUrlWithDynamicMatch { get; set; }
 
         private string StatusCodeAcceptToSuccess { get; set; }
 
@@ -84,7 +87,7 @@ namespace QueueConsumer.Models
                 RetryTTL = 30000,
                 TimeoutInSeconds = 30,
                 Url = "http://pruu.herokuapp.com/dump/queue-consumer",
-                User = "user",                
+                User = "user",
                 StatusCodeAcceptToSuccess = "200;201;202;204",
                 StatusCodeAcceptToSuccessList = null,
             };
