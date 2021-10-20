@@ -1,6 +1,6 @@
 variables:
   project_name: 'QueueConsumer'
-  netcore_version: '2.2'
+  netcore_version: '3.1'
   docker_image_name: 'thiagobarradas/queue-consumer'
   docker_registry_account: 'DockerRegistryBarradas'
 
