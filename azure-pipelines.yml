@@ -108,11 +108,14 @@ stages:
       clean: all
     steps:
     - script: |
+        rm -rf $(System.DefaultWorkingDirectory)/bin
+        rm -rf artifact
+        mkdir -p artifact  
         pwd && ls -la 
         dotnet restore "$(solution_path)" 
         dotnet publish -c Release -o $(System.DefaultWorkingDirectory)/bin "$(project_path)"
-        mkdir artifact
         cp -r $(System.DefaultWorkingDirectory)/bin artifact/bin
+        ls artifact/bin
       displayName: Build Application
     - task: PublishPipelineArtifact@1
       displayName: Store Application Artifact
@@ -246,8 +249,10 @@ stages:
       inputs:
         artifact: $(project_name)
     - script: |
-        mkdir -p $(project_name)/bin
-        cp -r $(Pipeline.Workspace)/bin $(project_name)/bin
+        rm -rf bin
+        mkdir bin     
+        cp -r $(Pipeline.Workspace)/bin/* bin
+        ls -la bin
       displayName: Prepare Files
     - task: replacetokens@3
       inputs:
