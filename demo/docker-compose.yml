@@ -40,9 +40,8 @@ services:
       - LogBlacklist=cvv,number
       - LogApplication=TestQueueConsumerApp
       - NEW_RELIC_APP_NAME=TestQueueConsumer
-      - NEW_RELIC_LICENSE_KEY=xxxxxxx
+      - NEW_RELIC_LICENSE_KEY=5d0cba6ca84810845e71892aa552ad1079346e62
       - CORECLR_ENABLE_PROFILING=1
-
     links:
       - rabbitmq-server:rabbitmq-server
     depends_on:
