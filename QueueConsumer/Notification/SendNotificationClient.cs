@@ -1,90 +1,128 @@
-﻿using Newtonsoft.Json.Linq;
-using NewRelic.Api.Agent;
+﻿using NewRelic.Api.Agent;
+
+using Newtonsoft.Json.Linq;
 using QueueConsumer.Models;
+
 using RestSharp;
 using RestSharp.Authenticators;
+
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace QueueConsumer.Notification
+namespace QueueConsumer.Notification;
+
+public class SendNotificationClient
 {
-    public static class SendNotificationClient
+    private readonly IRestClient _restClient;
+    private QueueConsumerJwt _queueConsumerJwt;
+
+    public SendNotificationClient(QueueConsumerConfiguration configuration, QueueConsumerJwt queueConsumerJwt)
     {
-        [Trace]
-        public static async Task<bool> SendNotification(QueueConsumerConfiguration configuration, string urlFromMessage, string message)
+        _restClient = GetRestClient(configuration, queueConsumerJwt);
+        SetAuthenticationMethod(configuration, queueConsumerJwt);
+        _queueConsumerJwt = queueConsumerJwt;
+    }
+
+    [Trace]
+    public async Task<bool> SendNotification(QueueConsumerConfiguration configuration, string urlFromMessage, string message)
+    {
+        var request = new RestRequest(ExtractUrl(configuration, urlFromMessage, message), Method.POST);
+        request.AddParameter("application/json; charset=utf-8", message, ParameterType.RequestBody);
+
+        SetAuthenticationMethod(configuration, _queueConsumerJwt);
+
+        var response = await _restClient.ExecuteAsync(request);
+
+        return configuration.StatusCodeAcceptToSuccessList.Contains((int)response.StatusCode);
+    }
+
+    private static IRestClient GetRestClient(QueueConsumerConfiguration configuration, QueueConsumerJwt queueConsumerJwt)
+    {
+        var config = new RestClientAutologConfiguration
         {
-            RestRequest request = new RestRequest(Method.POST);
-            request.AddParameter("application/json; charset=utf-8", message, ParameterType.RequestBody);
+            EnabledLog = configuration.LogEnabled,
+            RequestJsonBlacklist = configuration.LogBlacklistList.ToArray(),
+            ResponseJsonBlacklist = configuration.LogBlacklistList.ToArray(),
+        };
 
-            string url = ExtractUrl(configuration, urlFromMessage, message);
+        var restClient = new RestClientAutolog(config)
+        {
+            Timeout = configuration.TimeoutInSeconds * 1000
+        };
 
-            var response = await GetRestClient(configuration, url).ExecuteAsync(request);
-
-            return configuration.StatusCodeAcceptToSuccessList.Contains((int)response.StatusCode);
+        if (!string.IsNullOrEmpty(configuration.UserAgent))
+        {
+            restClient.UserAgent = configuration.UserAgent;
         }
 
-        private static IRestClient GetRestClient(QueueConsumerConfiguration configuration, string url)
+        return restClient;
+    }
+
+    private void SetAuthenticationMethod(QueueConsumerConfiguration configuration, QueueConsumerJwt queueConsumerJwt)
+    {
+        if (configuration.AuthenticationMethod == "AuthToken")
         {
-            var config = new RestClientAutologConfiguration
-            {
-                EnabledLog = configuration.LogEnabled,
-                JsonBlacklist = configuration.LogBlacklistList.ToArray()
-            };
-
-            var restClient = new RestClientAutolog(url, config);
-            restClient.Timeout = configuration.TimeoutInSeconds * 1000;
-
-            if (string.IsNullOrWhiteSpace(configuration.AuthToken) == false)
-            {
-                restClient.AddDefaultParameter("Authorization", configuration.AuthToken, ParameterType.HttpHeader);
-            }
-
-            if (string.IsNullOrWhiteSpace(configuration.User) == false ||
-                string.IsNullOrWhiteSpace(configuration.Pass) == false)
-            {
-                var user = configuration.User ?? "";
-                var pass = configuration.Pass ?? "";
-                restClient.Authenticator = new HttpBasicAuthenticator(user, pass);
-            }
-
-            return restClient;
+            _restClient.AddDefaultParameter("Authorization", configuration.AuthToken, ParameterType.HttpHeader);
         }
-
-        private static string ExtractUrl(QueueConsumerConfiguration configuration, string urlFromMessage, string message)
+        else if (configuration.AuthenticationMethod == "Jwt")
         {
-            string url = urlFromMessage ?? configuration.Url;
-
-            if (!configuration.ShouldUseUrlWithDynamicMatch)
-            {
-                return url;
-            }
-
-            var messageAsJsonObj = JObject.Parse(message);
-
-            var fieldsPathToMatch = Regex.Matches(configuration.Url, @"{{[\w\.]*}}");
-
-            foreach (var fieldPathAsObj in fieldsPathToMatch)
-            {
-                string fieldPath = fieldPathAsObj.ToString().Trim('{', '}');
-                var fieldValue = messageAsJsonObj.SelectToken(fieldPath);
-                url = url.Replace("{{" + fieldPath + "}}", fieldValue.Value<string>());
-            }
-
-            return url;
+            queueConsumerJwt.HandleAccessToken();
+            _restClient.AddDefaultParameter("Authorization", $"Bearer {queueConsumerJwt.CurrentAccessToken.AccessToken}", ParameterType.HttpHeader);
+        }
+        else if (configuration.AuthenticationMethod == "Basic")
+        {
+            var user = configuration.User ?? "";
+            var pass = configuration.Pass ?? "";
+            _restClient.Authenticator = new HttpBasicAuthenticator(user, pass);
         }
     }
 
-    public static class RestClientExtensions
+    private static string ExtractUrl(QueueConsumerConfiguration configuration, string urlFromMessage, string message)
     {
-        public async static Task<IRestResponse> ExecuteTaskAsync(this IRestClient restClient, RestRequest request)
-        {
-            if (restClient == null)
-            {
-                throw new NullReferenceException();
-            }
+        var url = urlFromMessage ?? configuration.Url;
 
-            return await restClient.ExecuteAsync(request);
+        if (!configuration.ShouldUseUrlWithDynamicMatch)
+        {
+            return url;
         }
+
+        var messageAsJsonObj = JObject.Parse(message);
+
+        var fieldsPathToMatch = Regex.Matches(configuration.Url, @"{{[\w\.]*}}");
+
+        foreach (var fieldPathAsObj in fieldsPathToMatch)
+        {
+            string fieldPath = fieldPathAsObj.ToString().Trim('{', '}');
+            var fieldValue = messageAsJsonObj.SelectToken(fieldPath);
+            url = url.Replace("{{" + fieldPath + "}}", fieldValue.Value<string>());
+        }
+
+        return url;
+    }
+}
+
+public static class RestClientExtensions
+{
+    public static async Task<IRestResponse> ExecuteTaskAsync(this RestClient restClient, RestRequest request)
+    {
+        if (restClient == null)
+        {
+            throw new NullReferenceException();
+        }
+
+        var taskCompletionSource = new TaskCompletionSource<IRestResponse>();
+
+        var response = await restClient.ExecuteAsync(request);
+        if (response.ErrorException != null)
+        {
+            taskCompletionSource.TrySetException(response.ErrorException);
+        }
+        else
+        {
+            taskCompletionSource.TrySetResult(response);
+        };
+
+        return await taskCompletionSource.Task;
     }
 }

@@ -11,7 +11,7 @@ variables:
   solution_path: 'QueueConsumer.sln'
   project_name: 'QueueConsumer'
   project_path: 'QueueConsumer/QueueConsumer.csproj'
-  net_version: '3.1'
+  net_version: '6'
   docker_image_name: 'thiagobarradas/queue-consumer'
   docker_registry_account: 'DockerRegistryBarradas'
   execute_test: 'false'
