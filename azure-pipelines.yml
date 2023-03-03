@@ -1,6 +1,6 @@
 variables:
   project_name: 'QueueConsumer'
-  netcore_version: '2.2'
+  netcore_version: '6'
   docker_image_name: 'thiagobarradas/queue-consumer'
   docker_registry_account: 'DockerRegistryBarradas'
 
@@ -10,9 +10,9 @@ jobs:
   - script: |
       pwd && ls -la
       dotnet restore 
-      dotnet publish -c Release -o $(project_name)/bin/Release/netcoreapp$(netcore_version)
+      dotnet publish -c Release -o $(project_name)/bin/Release/net$(netcore_version)
       mkdir artifact
-      cp -r $(project_name)/bin/Release/netcoreapp$(netcore_version) artifact/$(Build.SourceBranchName)
+      cp -r $(project_name)/bin/Release/net$(netcore_version) artifact/$(Build.SourceBranchName)
     displayName: Build Application
   - task: PublishPipelineArtifact@1
     displayName: Store Application Artifact
@@ -32,7 +32,7 @@ jobs:
       artifact: $(project_name)
   - script: |
       mkdir -p $(project_name)/bin/Release
-      cp -r $(Pipeline.Workspace)/$(Build.SourceBranchName) $(project_name)/bin/Release/netcoreapp$(netcore_version)
+      cp -r $(Pipeline.Workspace)/$(Build.SourceBranchName) $(project_name)/bin/Release/net$(netcore_version)
     displayName: Prepare Files
   - task: replacetokens@3
     inputs:
