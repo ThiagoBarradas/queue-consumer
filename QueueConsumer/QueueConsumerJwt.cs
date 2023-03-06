@@ -50,7 +50,11 @@ public class QueueConsumerJwt
         request.AddParameter("grant_type", "client_credentials", ParameterType.GetOrPost);
         request.AddParameter("client_secret", _configuration.ClientSecret, ParameterType.GetOrPost);
         request.AddHeader("Accept", "application/json");
-        request.AddHeader("User-Agent", _configuration.UserAgent);
+
+        if (!string.IsNullOrEmpty(_configuration.User))
+        {
+            request.AddHeader("User-Agent", _configuration.UserAgent);
+        }
 
         var response = restClient.Execute(request);
 
