@@ -42,6 +42,11 @@ public class SendNotificationClient
             Timeout = configuration.TimeoutInSeconds * 1000
         };
 
+        if (!string.IsNullOrEmpty(configuration.UserAgent))
+        {
+            restClient.UserAgent = configuration.UserAgent;
+        }
+
         return restClient;
     }
 
