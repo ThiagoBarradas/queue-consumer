@@ -1,5 +1,5 @@
 ## APP BUILDER
-FROM mcr.microsoft.com/dotnet/runtime:3.1
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
 
 # Default Environment 
 ENV CURRENT_VERSION="__[Version]__"
