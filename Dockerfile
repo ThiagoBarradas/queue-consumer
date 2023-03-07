@@ -1,11 +1,11 @@
 ## APP BUILDER
-FROM microsoft/dotnet:2.2-runtime
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
 
 # Default Environment 
 ENV CURRENT_VERSION="__[Version]__"
 
 # Args
-ARG distFolder=QueueConsumer/bin/Release/netcoreapp2.2
+ARG distFolder=QueueConsumer/bin/Release/net6
 ARG appFile=QueueConsumer.dll
  
 # Copy files to /app
