@@ -1,7 +1,7 @@
 version: '2'
 services:
   rabbitmq-server:
-    image: rabbitmq:3-management
+    image: rabbitmq:3.6-management
     container_name: rabbitmq-server
     hostname: rabbitmq-server
     labels:
@@ -23,15 +23,25 @@ services:
     environment:
       - QueueConnectionString=amqp://user:password@rabbitmq-server:5672/consumervh
       - QueueName=my-demo-queue
-      - Url=http://pruu.herokuapp.com/dump/queue-consumer
+      - Url=http://pruu.herokuapp.com/dump/queue-consumer?tid={{test_id}}&tid2={{tid.tid2}}
       - User=user
       - Pass=password
-      - TimeoutInSeconds=30
+      - TimeoutInSeconds=5
       - MaxThreads=100
       - PopulateQueueQuantity=10000
       - RetryCount=5       
-      - RetryTTL=300000 
+      - RetryTTL=15000 
       - CreateQueue=true
+      - LogEnabled=true
+      - StatusCodeAcceptToSuccess=200;201
+      - LogNewRelicEnabled=true
+      - ShouldUseUrlWithDynamicMatch=true
+      - LogDomain=TeamA
+      - LogBlacklist=cvv,number
+      - LogApplication=TestQueueConsumerApp
+      - NEW_RELIC_APP_NAME=TestQueueConsumer
+      - NEW_RELIC_LICENSE_KEY=xxxxx
+      - CORECLR_ENABLE_PROFILING=1
     links:
       - rabbitmq-server:rabbitmq-server
     depends_on:

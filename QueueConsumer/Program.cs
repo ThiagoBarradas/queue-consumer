@@ -23,9 +23,9 @@ public class Program
 
             var queueConsumerJwt = new QueueConsumerJwt(config);
             var sendNotificationClient = new SendNotificationClient(config, queueConsumerJwt);
-
+            
             DisplayHeader(config);
-
+            
             var processor = new QueueMessageProcessor(config, sendNotificationClient);
 
             var task = new Task(() =>
@@ -64,6 +64,7 @@ public class Program
         Logger.LogLine("- AuthUrl: {0}", string.IsNullOrWhiteSpace(config.AuthUrl));
         Logger.LogLine("- ClientId: {0}", string.IsNullOrWhiteSpace(config.ClientId) ? "null" : "******");
         Logger.LogLine("- ClientSecret: {0}", string.IsNullOrWhiteSpace(config.ClientSecret) ? "null" : "******");
+        Logger.LogLine("- UserAgent: {0}", config.UserAgent);
         Logger.LogLine("- TimeoutInSeconds: {0}", config.TimeoutInSeconds);
         Logger.LogLine("- MaxThreads: {0}", config.MaxThreads);
         Logger.LogLine("- PopulateQueueQuantity: {0}", config.PopulateQueueQuantity);
@@ -71,7 +72,28 @@ public class Program
         Logger.LogLine("- RetryCount: {0}", config.RetryCount);
         Logger.LogLine("- RetryTTL: {0}", config.RetryTTL);
         Logger.LogLine("- Condition: {0}", config.Condition);
-        Logger.LogLine("- StatusCodeAcceptToSuccessList: {0}", string.Join(";",config.StatusCodeAcceptToSuccessList));
+        Logger.LogLine("- StatusCodeAcceptToSuccessList: {0}", string.Join(";", config.StatusCodeAcceptToSuccessList));
+
+        Logger.LogLine("- LogEnabled: {0}", config.LogEnabled);
+        Logger.LogLine("- LogDomain: {0}", config.LogDomain);
+        Logger.LogLine("- LogApplication: {0}", config.LogApplication);
+        Logger.LogLine("- LogBlacklist: {0}", config.LogBlacklist);
+
+        Logger.LogLine("- LogSeqEnabled: {0}", config.LogSeqEnabled);
+        Logger.LogLine("- LogSeqUrl: {0}", config.LogSeqUrl);
+        Logger.LogLine("- LogSeqApiKey: {0}", string.IsNullOrWhiteSpace(config.LogSeqApiKey) ? "null" : "******");
+
+        Logger.LogLine("- LogSplunkEnabled: {0}", config.LogSplunkEnabled);
+        Logger.LogLine("- LogSplunkUrl: {0}", config.LogSplunkUrl);
+        Logger.LogLine("- LogSplunkIndex: {0}", config.LogSplunkIndex);
+        Logger.LogLine("- LogSplunkCompany: {0}", config.LogSplunkCompany);
+        Logger.LogLine("- LogSplunkToken: {0}", string.IsNullOrWhiteSpace(config.LogSplunkToken) ? "null" : "******");
+
+        Logger.LogLine("- LogNewRelicEnabled: {0}", config.LogNewRelicEnabled);
+        Logger.LogLine("- LogNewRelicAppName: {0}", config.LogNewRelicAppName);
+        Logger.LogLine("- LogNewRelicLicenseKey: {0}", string.IsNullOrWhiteSpace(config.LogNewRelicLicenseKey) ? "null" : "******");
+        Logger.LogLine("- NewRelicApmEnabled: {0}", config.NewRelicApmEnabled);
+
         Logger.LogLine("");
     }
 }

@@ -1,4 +1,4 @@
-﻿using QueueConsumer.Models;
+using QueueConsumer.Models;
 using QueueConsumer.Notification;
 using QueueConsumer.Queue;
 
@@ -34,7 +34,7 @@ public class QueueMessageProcessor : IDisposable
         try
         {
             this.QueueManager.TryConnect();
-            this.QueueManager.ReceiveMessage += (message, retryCount, deliveryTag) =>
+            this.QueueManager.ReceiveMessage += (message, retryCount, url, deliveryTag) =>
             {
                 while (this.CanAddThread() == false)
                 {
@@ -42,7 +42,7 @@ public class QueueMessageProcessor : IDisposable
                     this.Threads.RemoveAll(t => t.IsCompleted);
                 }
 
-                this.Threads.Add(HandleReceivedMessage(message, retryCount, deliveryTag));
+                this.Threads.Add(HandleReceivedMessage(message, retryCount, url, deliveryTag));
             };
 
             return true;
@@ -56,7 +56,7 @@ public class QueueMessageProcessor : IDisposable
         }
     }
 
-    public async Task HandleReceivedMessage(string message, int retryCount, ulong deliveryTag)
+    public async Task HandleReceivedMessage(string message, int retryCount, string urlFromMessage, ulong deliveryTag)
     {
         Logger.LogLineWithLevel("OK", "HandleReceivedMessage: Processing message [{0}] started", deliveryTag);
 
@@ -72,7 +72,7 @@ public class QueueMessageProcessor : IDisposable
             }
         }
 
-        var success = await SendNotificationClient.SendNotification(this.Configuration, message);
+        var success = await SendNotificationClient.SendNotification(this.Configuration, urlFromMessage, message);
 
         if (success)
         {
@@ -81,13 +81,13 @@ public class QueueMessageProcessor : IDisposable
         }
         else if (retryCount < this.Configuration.RetryCount)
         {
-            this.QueueManager.AddRetryMessage(message, retryCount + 1);
+            this.QueueManager.AddRetryMessage(message, retryCount + 1, urlFromMessage);
             this.QueueManager.Ack(deliveryTag);
             Logger.LogLineWithLevel("WARN", "HandleReceivedMessage: Processing message [{0}] failed - Sending to retry queue {1}/{2}", deliveryTag, retryCount + 1, this.Configuration.RetryCount);
         }
         else
         {
-            this.QueueManager.AddDeadMessage(message);
+            this.QueueManager.AddDeadMessage(message, urlFromMessage);
             this.QueueManager.Ack(deliveryTag);
             Logger.LogLineWithLevel("WARN", "HandleReceivedMessage: Processing message [{0}] failed - Sending to dead queue", deliveryTag);
         }
