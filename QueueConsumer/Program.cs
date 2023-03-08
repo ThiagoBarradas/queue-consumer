@@ -73,8 +73,8 @@ public class Program
         Logger.LogLine("- RetryCount: {0}", config.RetryCount);
         Logger.LogLine("- RetryTTL: {0}", config.RetryTTL);
         Logger.LogLine("- Condition: {0}", config.Condition);
-        Logger.LogLine("- StatusCodeAcceptToSuccessList: {0}", string.Join(";",config.StatusCodeAcceptToSuccessList));
-        
+        Logger.LogLine("- StatusCodeAcceptToSuccessList: {0}", string.Join(";", config.StatusCodeAcceptToSuccessList));
+
         Logger.LogLine("- LogEnabled: {0}", config.LogEnabled);
         Logger.LogLine("- LogDomain: {0}", config.LogDomain);
         Logger.LogLine("- LogApplication: {0}", config.LogApplication);

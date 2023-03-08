@@ -111,9 +111,8 @@ public class QueueConsumerConfiguration
     }
 
     public string AuthenticationMethod
-        => !string.IsNullOrWhiteSpace(AuthToken) ? "Basic"
+        => !string.IsNullOrWhiteSpace(AuthToken) || (string.IsNullOrWhiteSpace(User) == false || string.IsNullOrWhiteSpace(Pass)) ? "AuthToken"
         : !string.IsNullOrEmpty(ClientId) && !string.IsNullOrEmpty(ClientSecret) && !string.IsNullOrEmpty(AuthUrl) ? "Jwt"
-        : string.IsNullOrWhiteSpace(User) == false || string.IsNullOrWhiteSpace(Pass) == false ? "Basic"
         : "";
 
     public QueueConsumerConfiguration()

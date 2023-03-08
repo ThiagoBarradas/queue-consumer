@@ -7,6 +7,7 @@ using RestSharp;
 using RestSharp.Authenticators;
 
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -15,12 +16,11 @@ namespace QueueConsumer.Notification;
 public class SendNotificationClient
 {
     private readonly IRestClient _restClient;
-    private QueueConsumerJwt _queueConsumerJwt;
+    private readonly QueueConsumerJwt _queueConsumerJwt;
 
     public SendNotificationClient(QueueConsumerConfiguration configuration, QueueConsumerJwt queueConsumerJwt)
     {
         _restClient = GetRestClient(configuration, queueConsumerJwt);
-        SetAuthenticationMethod(configuration, queueConsumerJwt);
         _queueConsumerJwt = queueConsumerJwt;
     }
 
@@ -61,14 +61,14 @@ public class SendNotificationClient
 
     private void SetAuthenticationMethod(QueueConsumerConfiguration configuration, QueueConsumerJwt queueConsumerJwt)
     {
-        if (configuration.AuthenticationMethod == "AuthToken")
+        if (configuration.AuthenticationMethod == "AuthToken" && !_restClient.DefaultParameters.Any(x => x.Name == "Authorization"))
         {
-            _restClient.AddDefaultParameter("Authorization", configuration.AuthToken, ParameterType.HttpHeader);
+            _restClient.AddDefaultHeader("Authorization", configuration.AuthToken);
         }
         else if (configuration.AuthenticationMethod == "Jwt")
         {
             queueConsumerJwt.HandleAccessToken();
-            _restClient.AddDefaultParameter("Authorization", $"Bearer {queueConsumerJwt.CurrentAccessToken.AccessToken}", ParameterType.HttpHeader);
+            _restClient.Authenticator = new JwtAuthenticator(queueConsumerJwt.CurrentAccessToken.AccessToken);
         }
         else if (configuration.AuthenticationMethod == "Basic")
         {
