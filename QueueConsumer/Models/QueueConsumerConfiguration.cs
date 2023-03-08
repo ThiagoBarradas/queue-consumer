@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using Serilog.Builder;
 using Serilog.Builder.Models;
 
@@ -172,7 +172,7 @@ public class QueueConsumerConfiguration
         {
             loggerBuilder.EnableSeq(this.LogSeqUrl, this.LogSeqApiKey);
         }
-
+        
         if (this.LogSplunkEnabled)
         {
             loggerBuilder.SetupSplunk(new SplunkOptions

@@ -1,11 +1,8 @@
-﻿using NewRelic.Api.Agent;
-
+using NewRelic.Api.Agent;
 using Newtonsoft.Json.Linq;
 using QueueConsumer.Models;
-
 using RestSharp;
 using RestSharp.Authenticators;
-
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -30,11 +27,8 @@ public class SendNotificationClient
         var request = new RestRequest(ExtractUrl(configuration, urlFromMessage, message), Method.POST);
         request.AddParameter("application/json; charset=utf-8", message, ParameterType.RequestBody);
 
-        SetAuthenticationMethod(configuration, _queueConsumerJwt);
-
-        var response = await _restClient.ExecuteAsync(request);
-
-        return configuration.StatusCodeAcceptToSuccessList.Contains((int)response.StatusCode);
+        SetAuthenticationMethod(configuration, queueConsumerJwt);
+        _queueConsumerJwt = queueConsumerJwt;
     }
 
     private static IRestClient GetRestClient(QueueConsumerConfiguration configuration, QueueConsumerJwt queueConsumerJwt)
@@ -78,14 +72,14 @@ public class SendNotificationClient
         }
     }
 
-    private static string ExtractUrl(QueueConsumerConfiguration configuration, string urlFromMessage, string message)
+    private static string ExtractUrl(QueueConsumerConfiguration configuration, string message)
     {
-        var url = urlFromMessage ?? configuration.Url;
-
         if (!configuration.ShouldUseUrlWithDynamicMatch)
         {
-            return url;
+            return configuration.Url;
         }
+
+        string url = configuration.Url;
 
         var messageAsJsonObj = JObject.Parse(message);
 
@@ -97,7 +91,7 @@ public class SendNotificationClient
             var fieldValue = messageAsJsonObj.SelectToken(fieldPath);
             url = url.Replace("{{" + fieldPath + "}}", fieldValue.Value<string>());
         }
-
+        
         return url;
     }
 }
@@ -113,16 +107,18 @@ public static class RestClientExtensions
 
         var taskCompletionSource = new TaskCompletionSource<IRestResponse>();
 
-        var response = await restClient.ExecuteAsync(request);
-        if (response.ErrorException != null)
+        restClient.ExecuteAsync(request, (response) =>
         {
-            taskCompletionSource.TrySetException(response.ErrorException);
-        }
-        else
-        {
-            taskCompletionSource.TrySetResult(response);
-        };
+            if (response.ErrorException != null)
+            {
+                taskCompletionSource.TrySetException(response.ErrorException);
+            }
+            else
+            {
+                taskCompletionSource.TrySetResult(response);
+            }
+        });
 
-        return await taskCompletionSource.Task;
+        return taskCompletionSource.Task;
     }
 }

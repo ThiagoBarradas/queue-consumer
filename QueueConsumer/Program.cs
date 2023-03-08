@@ -23,9 +23,9 @@ public class Program
 
             var queueConsumerJwt = new QueueConsumerJwt(config);
             var sendNotificationClient = new SendNotificationClient(config, queueConsumerJwt);
-
+            
             DisplayHeader(config);
-
+            
             var processor = new QueueMessageProcessor(config, sendNotificationClient);
 
             var task = new Task(() =>
@@ -52,7 +52,6 @@ public class Program
 
     private static void DisplayHeader(QueueConsumerConfiguration config)
     {
-
         Logger.LogLineWithLevel("INFO", "Queue Consumer Application Started");
         Logger.LogLine("");
         Logger.LogLine("Configuration:");

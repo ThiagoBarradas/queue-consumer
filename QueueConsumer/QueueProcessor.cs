@@ -1,6 +1,7 @@
-﻿using QueueConsumer.Models;
+using QueueConsumer.Models;
 using QueueConsumer.Notification;
 using QueueConsumer.Queue;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
