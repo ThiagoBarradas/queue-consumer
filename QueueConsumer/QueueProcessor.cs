@@ -95,8 +95,9 @@ public class QueueMessageProcessor : IDisposable
         }
         catch(Exception ex)
         {
+            this.QueueManager.AddDeadMessage(message, urlFromMessage);
             this.QueueManager.Ack(deliveryTag);
-            Logger.LogLineWithLevel("WARN", $"HandleReceivedMessage: Processing message [{0}] failed. An Exception[{ex.GetType()}] occurred. Message: {ex.Message}");
+            Logger.LogLineWithLevel("WARN", $"HandleReceivedMessage: Processing message [{0}] failed - Sending to dead queue. An Exception[{ex.GetType()}] occurred. Message: {ex.Message}");
         }
     }
 
