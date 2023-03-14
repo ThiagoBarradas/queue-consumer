@@ -1,4 +1,5 @@
 using NewRelic.Api.Agent;
+
 using Newtonsoft.Json;
 
 using QueueConsumer.Models;
@@ -46,8 +47,8 @@ public class QueueManager : IDisposable
         this.Channel.BasicPublish(
             exchange: "",
             routingKey: $"{this.Configuration.QueueName}-dead",
-            basicProperties: new BasicProperties 
-            { 
+            basicProperties: new BasicProperties
+            {
                 Persistent = true,
                 Headers = this.GetHeaders(null, url)
             },
@@ -60,8 +61,8 @@ public class QueueManager : IDisposable
         this.Channel.BasicPublish(
             exchange: "",
             routingKey: this.Configuration.QueueName,
-            basicProperties: new BasicProperties 
-            { 
+            basicProperties: new BasicProperties
+            {
                 Persistent = true,
                 Headers = this.GetHeaders(null, url)
             },
@@ -116,7 +117,7 @@ public class QueueManager : IDisposable
             this.Channel.QueueBind(this.Configuration.QueueName,
                                     $"{this.Configuration.QueueName}-exchange",
                                     $"{this.Configuration.QueueName}-routing-key", null);
-                                    
+
             var retryQueueArgs = new Dictionary<string, object>
             {
                 { "x-dead-letter-exchange", $"{this.Configuration.QueueName}-exchange"},
@@ -148,14 +149,13 @@ public class QueueManager : IDisposable
             Console.CursorVisible = true;
             Console.WriteLine();
         }
-        
+
         var consumer = new EventingBasicConsumer(this.Channel);
 
         consumer.Received += this.Received;
 
         Channel.BasicQos(0, (ushort)this.Configuration.MaxThreads, false);
         Channel.BasicConsume(queue: this.Configuration.QueueName, consumer: consumer);
-
     }
 
     private void Received(object model, BasicDeliverEventArgs eventArgs)

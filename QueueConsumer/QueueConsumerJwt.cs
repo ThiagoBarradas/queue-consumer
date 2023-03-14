@@ -51,25 +51,18 @@ public class QueueConsumerJwt
         request.AddParameter("client_secret", _configuration.ClientSecret, ParameterType.GetOrPost);
         request.AddHeader("Accept", "application/json");
 
-        if (!string.IsNullOrEmpty(_configuration.User))
+        if (!string.IsNullOrEmpty(_configuration.UserAgent))
         {
             request.AddHeader("User-Agent", _configuration.UserAgent);
         }
 
         var response = restClient.Execute(request);
 
-        if (response.StatusCode == HttpStatusCode.BadRequest)
-        {
-            throw new HttpRequestException($"BadRequest: {response.Content}");
-        }
-
         if (!response.IsSuccessful)
         {
-            throw new HttpRequestException($"Invalid status code received from api: {response.StatusCode}");
+            throw new HttpRequestException($"Invalid status code received from auth api: {response.StatusCode}");
         }
 
-        var accessTokenObj = JsonConvert.DeserializeObject<AccessTokenResponse>(response.Content);
-
-        return accessTokenObj;
+        return JsonConvert.DeserializeObject<AccessTokenResponse>(response.Content);
     }
 }

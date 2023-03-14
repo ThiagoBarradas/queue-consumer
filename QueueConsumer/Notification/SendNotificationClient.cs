@@ -1,9 +1,12 @@
 using NewRelic.Api.Agent;
+
 using Newtonsoft.Json.Linq;
+
 using QueueConsumer.Models;
+
 using RestSharp;
 using RestSharp.Authenticators;
-using System;
+
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -12,13 +15,13 @@ namespace QueueConsumer.Notification;
 
 public class SendNotificationClient
 {
-    private readonly IRestClient RestClient;
-    private readonly QueueConsumerJwt QueueConsumerJwt;
+    private readonly IRestClient _restClient;
+    private readonly QueueConsumerJwt _queueConsumerJwt;
 
     public SendNotificationClient(QueueConsumerConfiguration configuration, QueueConsumerJwt queueConsumerJwt)
     {
-        this.RestClient = GetRestClient(configuration, queueConsumerJwt);
-        this.QueueConsumerJwt = queueConsumerJwt;
+        _restClient = GetRestClient(configuration);
+        _queueConsumerJwt = queueConsumerJwt;
     }
 
     [Trace]
@@ -27,14 +30,14 @@ public class SendNotificationClient
         var request = new RestRequest(ExtractUrl(configuration, urlFromMessage, message), Method.POST);
         request.AddParameter("application/json; charset=utf-8", message, ParameterType.RequestBody);
 
-        SetAuthenticationMethod(configuration, QueueConsumerJwt);
-        
-        var response = await this.RestClient.ExecuteAsync(request);
+        SetAuthenticationMethod(configuration);
+
+        var response = await _restClient.ExecuteAsync(request);
 
         return configuration.StatusCodeAcceptToSuccessList.Contains((int)response.StatusCode);
     }
 
-    private static IRestClient GetRestClient(QueueConsumerConfiguration configuration, QueueConsumerJwt queueConsumerJwt)
+    private static IRestClient GetRestClient(QueueConsumerConfiguration configuration)
     {
         var config = new RestClientAutologConfiguration
         {
@@ -56,22 +59,22 @@ public class SendNotificationClient
         return restClient;
     }
 
-    private void SetAuthenticationMethod(QueueConsumerConfiguration configuration, QueueConsumerJwt queueConsumerJwt)
+    private void SetAuthenticationMethod(QueueConsumerConfiguration configuration)
     {
-        if (configuration.AuthenticationMethod == "AuthToken" && !this.RestClient.DefaultParameters.Any(x => x.Name == "Authorization"))
+        if (configuration.AuthenticationMethod == "AuthToken" && !_restClient.DefaultParameters.Any(x => x.Name == "Authorization"))
         {
-            this.RestClient.AddDefaultHeader("Authorization", configuration.AuthToken);
+            _restClient.AddDefaultHeader("Authorization", configuration.AuthToken);
         }
         else if (configuration.AuthenticationMethod == "Jwt")
         {
-            queueConsumerJwt.HandleAccessToken();
-            this.RestClient.Authenticator = new JwtAuthenticator(queueConsumerJwt.CurrentAccessToken.AccessToken);
+            _queueConsumerJwt.HandleAccessToken();
+            _restClient.Authenticator = new JwtAuthenticator(_queueConsumerJwt.CurrentAccessToken.AccessToken);
         }
         else if (configuration.AuthenticationMethod == "Basic")
         {
             var user = configuration.User ?? "";
             var pass = configuration.Pass ?? "";
-            this.RestClient.Authenticator = new HttpBasicAuthenticator(user, pass);
+            _restClient.Authenticator = new HttpBasicAuthenticator(user, pass);
         }
     }
 
@@ -94,34 +97,7 @@ public class SendNotificationClient
             var fieldValue = messageAsJsonObj.SelectToken(fieldPath);
             url = url.Replace("{{" + fieldPath + "}}", fieldValue.Value<string>());
         }
-        
+
         return url;
-    }
-}
-
-public static class RestClientExtensions
-{
-    public static Task<IRestResponse> ExecuteTaskAsync(this RestClient restClient, RestRequest request)
-    {
-        if (restClient == null)
-        {
-            throw new NullReferenceException();
-        }
-
-        var taskCompletionSource = new TaskCompletionSource<IRestResponse>();
-        
-        restClient.ExecuteAsync(request, (response) =>
-        {
-            if (response.ErrorException != null)
-            {
-                taskCompletionSource.TrySetException(response.ErrorException);
-            }
-            else
-            {
-                taskCompletionSource.TrySetResult(response);
-            }
-        });
-
-        return taskCompletionSource.Task;
     }
 }

@@ -72,24 +72,32 @@ public class QueueMessageProcessor : IDisposable
             }
         }
 
-        var success = await SendNotificationClient.SendNotification(this.Configuration, urlFromMessage, message);
-
-        if (success)
+        try
         {
-            this.QueueManager.Ack(deliveryTag);
-            Logger.LogLineWithLevel("OK", "HandleReceivedMessage: Processing message [{0}] sucesfully", deliveryTag);
+            var success = await SendNotificationClient.SendNotification(this.Configuration, urlFromMessage, message);
+            if (success)
+            {
+                this.QueueManager.Ack(deliveryTag);
+                Logger.LogLineWithLevel("OK", "HandleReceivedMessage: Processing message [{0}] sucesfully", deliveryTag);
+            }
+            else if (retryCount < this.Configuration.RetryCount)
+            {
+                this.QueueManager.AddRetryMessage(message, retryCount + 1, urlFromMessage);
+                this.QueueManager.Ack(deliveryTag);
+                Logger.LogLineWithLevel("WARN", "HandleReceivedMessage: Processing message [{0}] failed - Sending to retry queue {1}/{2}", deliveryTag, retryCount + 1, this.Configuration.RetryCount);
+            }
+            else
+            {
+                this.QueueManager.AddDeadMessage(message, urlFromMessage);
+                this.QueueManager.Ack(deliveryTag);
+                Logger.LogLineWithLevel("WARN", "HandleReceivedMessage: Processing message [{0}] failed - Sending to dead queue", deliveryTag);
+            }
         }
-        else if (retryCount < this.Configuration.RetryCount)
-        {
-            this.QueueManager.AddRetryMessage(message, retryCount + 1, urlFromMessage);
-            this.QueueManager.Ack(deliveryTag);
-            Logger.LogLineWithLevel("WARN", "HandleReceivedMessage: Processing message [{0}] failed - Sending to retry queue {1}/{2}", deliveryTag, retryCount + 1, this.Configuration.RetryCount);
-        }
-        else
+        catch(Exception ex)
         {
             this.QueueManager.AddDeadMessage(message, urlFromMessage);
             this.QueueManager.Ack(deliveryTag);
-            Logger.LogLineWithLevel("WARN", "HandleReceivedMessage: Processing message [{0}] failed - Sending to dead queue", deliveryTag);
+            Logger.LogLineWithLevel("WARN", $"HandleReceivedMessage: Processing message [{0}] failed - Sending to dead queue. An Exception[{ex.GetType()}] occurred. Message: {ex.Message}");
         }
     }
 

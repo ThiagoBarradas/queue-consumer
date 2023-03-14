@@ -111,7 +111,7 @@ public class QueueConsumerConfiguration
     }
 
     public string AuthenticationMethod
-        => !string.IsNullOrWhiteSpace(AuthToken) || (string.IsNullOrWhiteSpace(User) == false || string.IsNullOrWhiteSpace(Pass)) ? "AuthToken"
+        => !string.IsNullOrWhiteSpace(AuthToken) || (!string.IsNullOrWhiteSpace(User) && !string.IsNullOrWhiteSpace(Pass)) ? "AuthToken"
         : !string.IsNullOrEmpty(ClientId) && !string.IsNullOrEmpty(ClientSecret) && !string.IsNullOrEmpty(AuthUrl) ? "Jwt"
         : "";
 
@@ -172,7 +172,7 @@ public class QueueConsumerConfiguration
         {
             loggerBuilder.EnableSeq(this.LogSeqUrl, this.LogSeqApiKey);
         }
-        
+
         if (this.LogSplunkEnabled)
         {
             loggerBuilder.SetupSplunk(new SplunkOptions
