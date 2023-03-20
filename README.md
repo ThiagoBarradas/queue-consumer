@@ -29,17 +29,38 @@ Set environment variables to setup QueueConsumer:
 
 | Env Var | Type | Required | Description | e.g. |
 | ------- | ---- | -------- | ----------- | ---- |
-| `QueueConnectionString` | string | yes | rabbit connection | `amqp://user:pass@localhost:5672/current-vh` |
-| `QueueName`             | string | yes | origin queue name and prefix for retry/dead queues | `some-queue` |
-| `Url`                   | string | yes | url to send post with content as json body | `https://domain.com/service/v1/hook` |
-| `User`                  | string | no  | basic auth username | `username` |
-| `Pass`                  | string | no  | basic auth password | `password` |
-| `AuthToken`             | string | no  | authorization header | `some-token` |
-| `TimeoutInSeconds`      | int    | no  | timeout to send post | `60` default |
-| `MaxThreads`            | int    | no  | thread parallel max number | `20` default |
-| `PopulateQueueQuantity` | int    | no  | send messages to populate main queue, `0` to disable | `0` default |
-| `RetryCount `           | int    | no  | max number of retries, `0` to disable | `5` default |
-| `RetryTTL`              | int    | no  | ttl in ms to retry a message, `0` to disable | `60000` default |
+| `QueueConnectionString`        | string | yes | rabbit connection | `amqp://user:pass@localhost:5672/current-vh` |
+| `QueueName`                    | string | yes | origin queue name and prefix for retry/dead queues | `some-queue` |
+| `Url`                          | string | yes | url to send post with content as json body | `https://domain.com/service/v1/hook` |
+| `User`                         | string | no  | basic auth username | `username` |
+| `Pass`                         | string | no  | basic auth password | `password` |
+| `AuthToken`                    | string | no  | authorization header | `some-token` |
+| `TimeoutInSeconds`             | int    | no  | timeout to send post | `60` default |
+| `MaxThreads`                   | int    | no  | thread parallel max number | `20` default |
+| `PopulateQueueQuantity`        | int    | no  | send messages to populate main queue, `0` to disable | `0` default |
+| `RetryCount `                  | int    | no  | max number of retries, `0` to disable | `5` default |
+| `RetryTTL`                     | int    | no  | ttl in ms to retry a message, `0` to disable | `60000` default |
+| `ShouldUseUrlWithDynamicMatch` | bool   | no  | set the part of the Url that is between {{}} with the property value comming from the body message | 'https://domain.com/service/{{v1}}/hook' |
+
+Others properties:
+
+- `StatusCodeAcceptToSuccess` 
+- `LogDomain` 
+- `LogApplication` 
+- `LogBlacklist` 
+- `LogDebugEnabled` 
+- `LogSeqEnabled` 
+- `LogSeqUrl` 
+- `LogSeqApiKey` 
+- `LogSplunkEnabled` 
+- `LogSplunkUrl` 
+- `LogSplunkToken` 
+- `LogSplunkIndex` 
+- `LogSplunkCompany` 
+- `LogNewRelicEnabled` 
+- `NEW_RELIC_APP_NAME` 
+- `NEW_RELIC_LICENSE_KEY` 
+- `CORECLR_ENABLE_PROFILING` 
 
 ### Generated queues/exchanges/routing-keys
 
